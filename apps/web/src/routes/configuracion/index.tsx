@@ -24,7 +24,7 @@ import {
 } from "@/hooks/use-timesheet-data";
 import { parseDateKey } from "@/lib/date";
 import { formatMinutesAsHours } from "@/lib/rules-engine";
-import type { WorkLog } from "@/lib/types";
+import type { WeeklyTargetHours, WorkLog } from "@/lib/types";
 
 const DAYS_OF_WEEK_ES = [
   { key: "monday", label: "Lunes" },
@@ -60,8 +60,12 @@ type SettingsTab = "targets" | "pay" | "rules" | "logs";
 const getDayTypeLabel = (
   dayType: "ordinary" | "sunday" | "holiday"
 ): string => {
-  if (dayType === "sunday") {return "Domingo";}
-  if (dayType === "holiday") {return "Festivo";}
+  if (dayType === "sunday") {
+    return "Domingo";
+  }
+  if (dayType === "holiday") {
+    return "Festivo";
+  }
   return "Ordinario";
 };
 
@@ -90,7 +94,9 @@ export default function SettingsPage() {
   };
 
   const handleDeleteLog = async () => {
-    if (!logToDelete) {return;}
+    if (!logToDelete) {
+      return;
+    }
     setIsDeletingLog(true);
     await deleteLog(logToDelete.id);
     setLogToDelete(null);
@@ -148,6 +154,7 @@ export default function SettingsPage() {
               const isActive = activeTab === tab;
               return (
                 <button
+                  type="button"
                   key={tab}
                   onClick={() => setActiveTab(tab as SettingsTab)}
                   className={cn(
@@ -189,7 +196,7 @@ export default function SettingsPage() {
                         onChange={(e) =>
                           updateTargets({
                             [day.key]: Number(e.target.value),
-                          } as any)
+                          } as Partial<WeeklyTargetHours>)
                         }
                         className="h-12 bg-transparent border border-foreground/10 font-black text-center rounded-none shadow-none focus-visible:ring-1 focus-visible:ring-foreground"
                       />
@@ -217,15 +224,16 @@ export default function SettingsPage() {
               <div className="space-y-6 mb-8">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
+                    <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
                       Base
-                    </label>
+                    </div>
                     <div className="flex flex-col gap-1 border border-foreground/10 p-1">
                       {PAY_BASIS_OPTIONS.map((opt) => (
                         <button
+                          type="button"
                           key={opt.value}
                           onClick={() =>
-                            updatePaySettings({ basis: opt.value as any })
+                            updatePaySettings({ basis: opt.value })
                           }
                           className={cn(
                             "text-xs font-black uppercase tracking-widest p-3 text-left transition-colors",
@@ -240,15 +248,16 @@ export default function SettingsPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
+                    <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
                       Moneda
-                    </label>
+                    </div>
                     <div className="flex flex-col gap-1 border border-foreground/10 p-1">
                       {CURRENCY_OPTIONS.map((opt) => (
                         <button
+                          type="button"
                           key={opt.value}
                           onClick={() =>
-                            updatePaySettings({ currency: opt.value as any })
+                            updatePaySettings({ currency: opt.value })
                           }
                           className={cn(
                             "text-xs font-black uppercase tracking-widest p-3 text-left transition-colors",
@@ -265,9 +274,9 @@ export default function SettingsPage() {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
+                  <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
                     Monto Base
-                  </label>
+                  </div>
                   <Input
                     type="number"
                     min="0"
@@ -282,9 +291,9 @@ export default function SettingsPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
+                    <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
                       Bonos
-                    </label>
+                    </div>
                     <Input
                       type="number"
                       min="0"
@@ -299,16 +308,17 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
+                    <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
                       Mostrar
-                    </label>
+                    </div>
                     <div className="flex flex-col gap-1 border border-foreground/10 p-1">
                       {DISPLAY_MODE_OPTIONS.map((opt) => (
                         <button
+                          type="button"
                           key={opt.value}
                           onClick={() =>
                             updatePaySettings({
-                              salaryDisplayMode: opt.value as any,
+                              salaryDisplayMode: opt.value,
                             })
                           }
                           className={cn(

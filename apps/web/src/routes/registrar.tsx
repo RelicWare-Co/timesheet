@@ -5,8 +5,8 @@ import { Input } from "@timesheet/ui/components/input";
 import { cn } from "@timesheet/ui/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Clock, Plus, Save, Trash2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ArrowLeft, Clock, Save, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   useHolidays,
@@ -25,7 +25,7 @@ import {
   getActiveRuleSet,
   getTargetHoursForDay,
 } from "@/lib/rules-engine";
-import type { WorkLog, WorkSegment, BreakSegment } from "@/lib/types";
+import type { WorkLog } from "@/lib/types";
 
 interface SegmentInput {
   id: string;
@@ -42,7 +42,19 @@ interface BreakInput {
 const generateId = (): string =>
   `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
-function BrutalistTimePicker({
+const getDayTypeLabel = (
+  dayType: "ordinary" | "sunday" | "holiday"
+): string => {
+  if (dayType === "ordinary") {
+    return "Ordinario";
+  }
+  if (dayType === "sunday") {
+    return "Domingo";
+  }
+  return "Festivo";
+};
+
+const BrutalistTimePicker = ({
   value,
   onChange,
   label,
@@ -50,7 +62,7 @@ function BrutalistTimePicker({
   value: string;
   onChange: (v: string) => void;
   label?: string;
-}) {
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [chars, setChars] = useState("");
   const [period, setPeriod] = useState<"AM" | "PM">("AM");
@@ -63,8 +75,12 @@ function BrutalistTimePicker({
       const mStr = parts[1] || "00";
       let h = Number.parseInt(hStr, 10);
       const p: "AM" | "PM" = h >= 12 ? "PM" : "AM";
-      if (h === 0) {h = 12;}
-      if (h > 12) {h -= 12;}
+      if (h === 0) {
+        h = 12;
+      }
+      if (h > 12) {
+        h -= 12;
+      }
       setChars(`${h.toString().padStart(2, "0")}${mStr}`);
       setPeriod(p);
       setIsPristine(true);
@@ -77,19 +93,27 @@ function BrutalistTimePicker({
       current = "";
       setIsPristine(false);
       if (/[2-9]/.test(d)) {
-        current = "0" + d;
+        current = `0${d}`;
         setChars(current);
         return;
       }
     }
-    if (current.length >= 4) {return;}
+    if (current.length >= 4) {
+      return;
+    }
     const next = current + d;
-    if (next.length === 1 && !/[0-1]/.test(next)) {return;}
+    if (next.length === 1 && !/[0-1]/.test(next)) {
+      return;
+    }
     if (next.length === 2) {
       const hr = Number.parseInt(next, 10);
-      if (hr < 1 || hr > 12) {return;}
+      if (hr < 1 || hr > 12) {
+        return;
+      }
     }
-    if (next.length === 3 && !/[0-5]/.test(d)) {return;}
+    if (next.length === 3 && !/[0-5]/.test(d)) {
+      return;
+    }
     setChars(next);
   };
 
@@ -102,8 +126,11 @@ function BrutalistTimePicker({
     const padded = chars.padEnd(4, "0");
     let h = Number.parseInt(padded.slice(0, 2), 10);
     const m = padded.slice(2, 4);
-    if (h === 12 && period === "AM") {h = 0;}
-    else if (h !== 12 && period === "PM") {h += 12;}
+    if (h === 12 && period === "AM") {
+      h = 0;
+    } else if (h !== 12 && period === "PM") {
+      h += 12;
+    }
     onChange(`${h.toString().padStart(2, "0")}:${m}`);
     setIsOpen(false);
   };
@@ -118,8 +145,12 @@ function BrutalistTimePicker({
     const cm = parts[1] || "00";
     let hNum = Number.parseInt(ch, 10);
     const p = hNum >= 12 ? "PM" : "AM";
-    if (hNum === 0) {hNum = 12;}
-    if (hNum > 12) {hNum -= 12;}
+    if (hNum === 0) {
+      hNum = 12;
+    }
+    if (hNum > 12) {
+      hNum -= 12;
+    }
     closedDisplay = `${hNum.toString().padStart(2, "0")}:${cm} ${p}`;
   } else {
     closedDisplay = "--:--";
@@ -143,6 +174,7 @@ function BrutalistTimePicker({
               {label || "Hora"}
             </span>
             <button
+              type="button"
               onClick={() => setIsOpen(false)}
               className="font-black p-2 -mr-2 opacity-50 hover:opacity-100 active:scale-95 transition-all"
             >
@@ -157,6 +189,7 @@ function BrutalistTimePicker({
               </div>
               <div className="flex bg-secondary/20 p-1 w-fit">
                 <button
+                  type="button"
                   onClick={() => setPeriod("AM")}
                   className={cn(
                     "px-8 py-4 text-2xl font-black transition-colors uppercase",
@@ -168,6 +201,7 @@ function BrutalistTimePicker({
                   AM
                 </button>
                 <button
+                  type="button"
                   onClick={() => setPeriod("PM")}
                   className={cn(
                     "px-8 py-4 text-2xl font-black transition-colors uppercase",
@@ -184,6 +218,7 @@ function BrutalistTimePicker({
             <div className="grid grid-cols-3 gap-2 w-full max-w-[340px]">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                 <button
+                  type="button"
                   key={num}
                   onClick={() => handleDigit(num.toString())}
                   className="bg-secondary/20 h-16 sm:h-20 text-4xl font-black hover:bg-foreground/10 active:bg-foreground active:text-background transition-colors"
@@ -192,18 +227,21 @@ function BrutalistTimePicker({
                 </button>
               ))}
               <button
+                type="button"
                 onClick={handleBackspace}
                 className="bg-secondary/20 h-16 sm:h-20 text-2xl font-black hover:bg-foreground/10 active:bg-foreground active:text-background transition-colors flex items-center justify-center text-destructive"
               >
                 DEL
               </button>
               <button
+                type="button"
                 onClick={() => handleDigit("0")}
                 className="bg-secondary/20 h-16 sm:h-20 text-4xl font-black hover:bg-foreground/10 active:bg-foreground active:text-background transition-colors"
               >
                 0
               </button>
               <button
+                type="button"
                 onClick={handleConfirm}
                 className="bg-foreground text-background h-16 sm:h-20 text-2xl font-black hover:bg-foreground/90 active:scale-95 transition-all flex items-center justify-center"
               >
@@ -215,7 +253,7 @@ function BrutalistTimePicker({
       )}
     </div>
   );
-}
+};
 
 export default function RegistrarPage() {
   const navigate = useNavigate();
@@ -236,15 +274,55 @@ export default function RegistrarPage() {
   const [breaks, setBreaks] = useState<BreakInput[]>([]);
   const [note, setNote] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [calcPreview, setCalcPreview] = useState<{
-    workedMinutes: number;
-    overtimeMinutes: number;
-    estimatedPay: number;
-  } | null>(null);
+  const calcPreview = useMemo(() => {
+    if (!settings) {
+      return null;
+    }
 
-  useEffect(() => {
-    calculatePreview();
-  }, [segments, breaks, dayType, selectedDate]);
+    const ruleSet = getActiveRuleSet(ruleSets, selectedDate);
+    if (!ruleSet) {
+      return null;
+    }
+
+    const targetHours = getTargetHoursForDay(selectedDate, targets);
+    const workSegments = segments.map(({ endTime, startTime }) => ({
+      endTime,
+      startTime,
+    }));
+    const breakSegments = breaks.map(({ endTime, startTime }) => ({
+      endTime,
+      startTime,
+    }));
+    const calculation = calculateDailyHours(
+      selectedDate,
+      workSegments,
+      breakSegments,
+      dayType,
+      targetHours,
+      ruleSet,
+      0
+    );
+    const payBreakdown = calculatePayBreakdown(
+      calculation,
+      paySettings,
+      ruleSet
+    );
+
+    return {
+      estimatedPay: payBreakdown.totalEstimatedPay,
+      overtimeMinutes: calculation.totalOvertimeMinutes,
+      workedMinutes: calculation.totalWorkedMinutes,
+    };
+  }, [
+    breaks,
+    dayType,
+    paySettings,
+    ruleSets,
+    segments,
+    selectedDate,
+    settings,
+    targets,
+  ]);
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
@@ -320,7 +398,9 @@ export default function RegistrarPage() {
   ) => {
     const updated = [...segments];
     const targetIndex = updated.findIndex((segment) => segment.id === id);
-    if (targetIndex === -1) {return;}
+    if (targetIndex === -1) {
+      return;
+    }
     updated[targetIndex] = { ...updated[targetIndex], [field]: value };
     setSegments(updated);
   };
@@ -332,50 +412,17 @@ export default function RegistrarPage() {
   ) => {
     const updated = [...breaks];
     const targetIndex = updated.findIndex((b) => b.id === id);
-    if (targetIndex === -1) {return;}
+    if (targetIndex === -1) {
+      return;
+    }
     updated[targetIndex] = { ...updated[targetIndex], [field]: value };
     setBreaks(updated);
   };
 
-  const calculatePreview = () => {
-    if (!settings) {return;}
-    const ruleSet = getActiveRuleSet(ruleSets, selectedDate);
-    if (!ruleSet) {return;}
-    const targetHours = getTargetHoursForDay(selectedDate, targets);
-
-    const workSegments = segments.map(({ endTime, startTime }) => ({
-      endTime,
-      startTime,
-    }));
-    const breakSegments = breaks.map(({ endTime, startTime }) => ({
-      endTime,
-      startTime,
-    }));
-
-    const calculation = calculateDailyHours(
-      selectedDate,
-      workSegments,
-      breakSegments,
-      dayType,
-      targetHours,
-      ruleSet,
-      0
-    );
-    const payBreakdown = calculatePayBreakdown(
-      calculation,
-      paySettings,
-      ruleSet
-    );
-
-    setCalcPreview({
-      estimatedPay: payBreakdown.totalEstimatedPay,
-      overtimeMinutes: calculation.totalOvertimeMinutes,
-      workedMinutes: calculation.totalWorkedMinutes,
-    });
-  };
-
   const handleSave = async () => {
-    if (!settings) {return;}
+    if (!settings) {
+      return;
+    }
     setIsSaving(true);
     const ruleSet = getActiveRuleSet(ruleSets, selectedDate);
     const dateStr = formatDateKey(selectedDate);
@@ -496,6 +543,7 @@ export default function RegistrarPage() {
             <div className="flex flex-col gap-2">
               {(["ordinary", "sunday", "holiday"] as const).map((type) => (
                 <button
+                  type="button"
                   key={type}
                   onClick={() => setDayType(type)}
                   className={cn(
@@ -505,11 +553,7 @@ export default function RegistrarPage() {
                       : "border-foreground/10 text-muted-foreground hover:border-foreground/40"
                   )}
                 >
-                  {type === "ordinary"
-                    ? "Ordinario"
-                    : (type === "sunday"
-                      ? "Domingo"
-                      : "Festivo")}
+                  {getDayTypeLabel(type)}
                 </button>
               ))}
             </div>
@@ -525,6 +569,7 @@ export default function RegistrarPage() {
                 Jornada
               </h3>
               <button
+                type="button"
                 onClick={addSegment}
                 className="text-xs font-bold uppercase tracking-widest hover:underline"
               >
@@ -582,6 +627,7 @@ export default function RegistrarPage() {
                 Descansos
               </h3>
               <button
+                type="button"
                 onClick={addBreak}
                 className="text-xs font-bold uppercase tracking-widest hover:underline"
               >

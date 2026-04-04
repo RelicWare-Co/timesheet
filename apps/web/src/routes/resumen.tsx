@@ -22,8 +22,12 @@ import {
 const getDayTypeLabel = (
   dayType: "ordinary" | "sunday" | "holiday"
 ): string => {
-  if (dayType === "sunday") {return "DOM";}
-  if (dayType === "holiday") {return "FES";}
+  if (dayType === "sunday") {
+    return "DOM";
+  }
+  if (dayType === "holiday") {
+    return "FES";
+  }
   return "ORD";
 };
 
@@ -44,9 +48,13 @@ export default function ResumenPage() {
   const weekEndKey = formatDateKey(weekEnd);
 
   const weeklyData = useMemo(() => {
-    if (!settings) {return null;}
+    if (!settings) {
+      return null;
+    }
     const ruleSet = getActiveRuleSet(ruleSets, weekStart);
-    if (!ruleSet) {return null;}
+    if (!ruleSet) {
+      return null;
+    }
 
     const weekLogs = logs.filter(
       (log) => log.date >= weekStartKey && log.date <= weekEndKey
@@ -112,12 +120,14 @@ export default function ResumenPage() {
 
         <div className="flex items-center border border-foreground/10 bg-background w-fit">
           <button
+            type="button"
             className="p-3 hover:bg-foreground hover:text-background transition-colors active:scale-95"
             onClick={() => setWeekOffset(weekOffset - 1)}
           >
             <ChevronLeft className="size-6" />
           </button>
           <button
+            type="button"
             className="px-6 h-[50px] font-black uppercase tracking-widest text-sm border-x border-foreground/10 hover:bg-foreground hover:text-background transition-colors"
             onClick={() => setWeekOffset(0)}
             disabled={weekOffset === 0}
@@ -125,6 +135,7 @@ export default function ResumenPage() {
             Actual
           </button>
           <button
+            type="button"
             className="p-3 hover:bg-foreground hover:text-background transition-colors active:scale-95"
             onClick={() => setWeekOffset(weekOffset + 1)}
           >

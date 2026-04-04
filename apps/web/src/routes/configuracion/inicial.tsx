@@ -14,7 +14,6 @@ import {
   ChevronRight,
   Clock,
   DollarSign,
-  Settings,
   Calculator,
   Sparkles,
   ArrowLeft,
@@ -72,14 +71,18 @@ export default function SetupPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (ruleSets.length === 0) {return;}
+    if (ruleSets.length === 0) {
+      return;
+    }
     const activeRuleSetId =
       getActiveRuleSet(ruleSets, new Date())?.id ?? ruleSets[0]?.id ?? "";
     setSelectedRuleSetId((current) => current || activeRuleSetId);
   }, [ruleSets]);
 
   useEffect(() => {
-    if (!settings) {return;}
+    if (!settings) {
+      return;
+    }
     setDraftTargets(settings.weeklyTargetHours);
     setDraftPaySettings(settings.paySettings);
     setSelectedRuleSetId(settings.activeRuleSetId);
@@ -255,13 +258,16 @@ export default function SetupPage() {
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
+                  <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
                     Base
-                  </label>
+                  </div>
                   <Select
                     value={draftPaySettings.basis}
                     onValueChange={(v) =>
-                      setDraftPaySettings((c) => ({ ...c, basis: v as any }))
+                      setDraftPaySettings((c) => ({
+                        ...c,
+                        basis: v as typeof c.basis,
+                      }))
                     }
                   >
                     <SelectTrigger className="h-14 rounded-2xl bg-secondary/30 border-none font-bold px-4">
@@ -281,13 +287,16 @@ export default function SetupPage() {
                   </Select>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
+                  <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
                     Moneda
-                  </label>
+                  </div>
                   <Select
                     value={draftPaySettings.currency}
                     onValueChange={(v) =>
-                      setDraftPaySettings((c) => ({ ...c, currency: v as any }))
+                      setDraftPaySettings((c) => ({
+                        ...c,
+                        currency: v ?? c.currency,
+                      }))
                     }
                   >
                     <SelectTrigger className="h-14 rounded-2xl bg-secondary/30 border-none font-bold px-4">
@@ -309,9 +318,9 @@ export default function SetupPage() {
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
+                <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
                   Monto Base
-                </label>
+                </div>
                 <div className="relative">
                   <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-muted-foreground" />
                   <Input
@@ -332,9 +341,9 @@ export default function SetupPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
+                  <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
                     Bonos Fijos
-                  </label>
+                  </div>
                   <Input
                     type="number"
                     min="0"
@@ -350,15 +359,15 @@ export default function SetupPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
+                  <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
                     Mostrar
-                  </label>
+                  </div>
                   <Select
                     value={draftPaySettings.salaryDisplayMode}
                     onValueChange={(v) =>
                       setDraftPaySettings((c) => ({
                         ...c,
-                        salaryDisplayMode: v as any,
+                        salaryDisplayMode: v as typeof c.salaryDisplayMode,
                       }))
                     }
                   >
@@ -424,10 +433,11 @@ export default function SetupPage() {
 
             <div className="space-y-4">
               {ruleSets.map((ruleSet) => (
-                <div
+                <button
+                  type="button"
                   key={ruleSet.id}
                   className={cn(
-                    "p-5 rounded-[1.5rem] border cursor-pointer transition-all duration-300 flex items-center justify-between",
+                    "p-5 rounded-[1.5rem] border cursor-pointer transition-all duration-300 flex items-center justify-between text-left w-full",
                     selectedRuleSetId === ruleSet.id
                       ? "border-foreground bg-foreground/5 shadow-sm"
                       : "border-border/40 bg-secondary/20 hover:bg-secondary/40"
@@ -445,7 +455,7 @@ export default function SetupPage() {
                       <Check className="size-4" strokeWidth={3} />
                     </div>
                   )}
-                </div>
+                </button>
               ))}
             </div>
 
