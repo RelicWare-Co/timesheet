@@ -17,6 +17,8 @@
     "@tanstack/react-router": "^1.141.1",
     "@timesheet/env": "workspace:*",
     "@timesheet/ui": "workspace:*",
+    "dexie": "^4.4.2",
+    "dexie-react-hooks": "^4.4.0",
     "dotenv": "catalog:",
     "lucide-react": "catalog:",
     "next-themes": "catalog:",
