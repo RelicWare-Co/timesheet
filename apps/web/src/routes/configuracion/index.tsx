@@ -10,7 +10,7 @@ import {
   AlertDialogTitle,
 } from "@timesheet/ui/components/alert-dialog";
 import { Button } from "@timesheet/ui/components/button";
-import { Input } from "@timesheet/ui/components/input";
+import { NumberInput } from "@timesheet/ui/components/number-input";
 import { cn } from "@timesheet/ui/lib/utils";
 import { ArrowLeft, Save, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -196,15 +196,14 @@ export default function SettingsPage() {
                       {day.label}
                     </span>
                     <div className="w-24 relative">
-                      <Input
-                        type="number"
+                      <NumberInput
                         min="0"
                         max="24"
                         step="0.5"
                         value={targets[day.key as keyof typeof targets]}
-                        onChange={(e) =>
+                        onValueChange={(value) =>
                           updateTargets({
-                            [day.key]: Number(e.target.value),
+                            [day.key]: value,
                           } as Partial<WeeklyTargetHours>)
                         }
                         className="h-12 bg-transparent border border-foreground/10 font-black text-center rounded-none shadow-none focus-visible:ring-1 focus-visible:ring-foreground"
@@ -286,13 +285,12 @@ export default function SettingsPage() {
                   <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
                     Monto Base
                   </div>
-                  <Input
-                    type="number"
+                  <NumberInput
                     min="0"
                     step="0.01"
                     value={paySettings.amount}
-                    onChange={(e) =>
-                      updatePaySettings({ amount: Number(e.target.value) })
+                    onValueChange={(value) =>
+                      updatePaySettings({ amount: value })
                     }
                     className="h-16 text-3xl font-black rounded-none shadow-none border-foreground/10 focus-visible:ring-1 focus-visible:ring-foreground"
                   />
@@ -303,15 +301,12 @@ export default function SettingsPage() {
                     <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
                       Bonos
                     </div>
-                    <Input
-                      type="number"
+                    <NumberInput
                       min="0"
                       step="0.01"
                       value={paySettings.allowances}
-                      onChange={(e) =>
-                        updatePaySettings({
-                          allowances: Number(e.target.value),
-                        })
+                      onValueChange={(value) =>
+                        updatePaySettings({ allowances: value })
                       }
                       className="h-14 font-black rounded-none shadow-none border-foreground/10 focus-visible:ring-1 focus-visible:ring-foreground"
                     />

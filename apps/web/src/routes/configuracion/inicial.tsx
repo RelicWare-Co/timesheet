@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@timesheet/ui/components/button";
-import { Input } from "@timesheet/ui/components/input";
+import { NumberInput } from "@timesheet/ui/components/number-input";
 import {
   Select,
   SelectContent,
@@ -210,14 +210,13 @@ export default function SetupPage() {
                 >
                   <span className="font-bold capitalize">{day.label}</span>
                   <div className="w-24 relative">
-                    <Input
-                      type="number"
+                    <NumberInput
                       min="0"
                       max="24"
                       step="0.5"
                       value={draftTargets[day.key]}
-                      onChange={(e) =>
-                        handleTargetChange(day.key, Number(e.target.value))
+                      onValueChange={(value) =>
+                        handleTargetChange(day.key, value)
                       }
                       className="h-12 bg-background/80 border-none font-bold text-center rounded-xl focus:ring-2 focus:ring-primary/20"
                     />
@@ -323,15 +322,14 @@ export default function SetupPage() {
                 </div>
                 <div className="relative">
                   <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-muted-foreground" />
-                  <Input
-                    type="number"
+                  <NumberInput
                     min="0"
                     step="0.01"
                     value={draftPaySettings.amount}
-                    onChange={(e) =>
+                    onValueChange={(value) =>
                       setDraftPaySettings((c) => ({
                         ...c,
-                        amount: Number(e.target.value),
+                        amount: value,
                       }))
                     }
                     className="h-16 pl-12 rounded-2xl bg-background border-border/40 font-black text-xl focus:ring-2 focus:ring-primary/20 shadow-inner"
@@ -344,15 +342,14 @@ export default function SetupPage() {
                   <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
                     Bonos Fijos
                   </div>
-                  <Input
-                    type="number"
+                  <NumberInput
                     min="0"
                     step="0.01"
                     value={draftPaySettings.allowances}
-                    onChange={(e) =>
+                    onValueChange={(value) =>
                       setDraftPaySettings((c) => ({
                         ...c,
-                        allowances: Number(e.target.value),
+                        allowances: value,
                       }))
                     }
                     className="h-14 rounded-2xl bg-secondary/30 border-none font-bold px-4"
