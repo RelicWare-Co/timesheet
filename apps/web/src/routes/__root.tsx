@@ -24,7 +24,7 @@ const RootComponent = () => (
     >
       <div className="flex min-h-svh flex-col bg-background text-foreground font-sans antialiased selection:bg-foreground selection:text-background">
         <Header />
-        
+
         {/* Main content area - brutalist clean padding */}
         <main className="flex-1 w-full flex flex-col pt-14 md:pt-16 pb-16 md:pb-0">
           <Outlet />
@@ -53,14 +53,14 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         name: "description",
       },
       {
-        name: "theme-color",
         content: "#ffffff",
         media: "(prefers-color-scheme: light)",
+        name: "theme-color",
       },
       {
-        name: "theme-color",
         content: "#000000",
         media: "(prefers-color-scheme: dark)",
+        name: "theme-color",
       },
     ],
   }),

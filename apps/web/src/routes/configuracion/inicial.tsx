@@ -9,7 +9,16 @@ import {
   SelectValue,
 } from "@timesheet/ui/components/select";
 import { cn } from "@timesheet/ui/lib/utils";
-import { Check, ChevronRight, Clock, DollarSign, Settings, Calculator, Sparkles, ArrowLeft } from "lucide-react";
+import {
+  Check,
+  ChevronRight,
+  Clock,
+  DollarSign,
+  Settings,
+  Calculator,
+  Sparkles,
+  ArrowLeft,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { useLegalRuleSets, useUserSettings } from "@/hooks/use-timesheet-data";
@@ -57,25 +66,29 @@ export default function SetupPage() {
   const { ruleSets } = useLegalRuleSets();
   const [currentStep, setCurrentStep] = useState<SetupStep>("targets");
   const [draftTargets, setDraftTargets] = useState(DEFAULT_WEEKLY_TARGET_HOURS);
-  const [draftPaySettings, setDraftPaySettings] = useState(DEFAULT_PAY_SETTINGS);
+  const [draftPaySettings, setDraftPaySettings] =
+    useState(DEFAULT_PAY_SETTINGS);
   const [selectedRuleSetId, setSelectedRuleSetId] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (ruleSets.length === 0) return;
+    if (ruleSets.length === 0) {return;}
     const activeRuleSetId =
       getActiveRuleSet(ruleSets, new Date())?.id ?? ruleSets[0]?.id ?? "";
     setSelectedRuleSetId((current) => current || activeRuleSetId);
   }, [ruleSets]);
 
   useEffect(() => {
-    if (!settings) return;
+    if (!settings) {return;}
     setDraftTargets(settings.weeklyTargetHours);
     setDraftPaySettings(settings.paySettings);
     setSelectedRuleSetId(settings.activeRuleSetId);
   }, [settings]);
 
-  const handleTargetChange = (key: keyof typeof draftTargets, value: number) => {
+  const handleTargetChange = (
+    key: keyof typeof draftTargets,
+    value: number
+  ) => {
     setDraftTargets((current) => ({ ...current, [key]: value }));
   };
 
@@ -83,7 +96,11 @@ export default function SetupPage() {
     setIsSaving(true);
     try {
       await saveSettings({
-        activeRuleSetId: selectedRuleSetId || getActiveRuleSet(ruleSets, new Date())?.id || ruleSets[0]?.id || "",
+        activeRuleSetId:
+          selectedRuleSetId ||
+          getActiveRuleSet(ruleSets, new Date())?.id ||
+          ruleSets[0]?.id ||
+          "",
         locale: "es-CO",
         paySettings: draftPaySettings,
         timezone: DEFAULT_TIMEZONE,
@@ -118,7 +135,10 @@ export default function SetupPage() {
             </p>
             <div className="flex flex-col gap-4">
               <Link to="/registrar" className="w-full">
-                <Button size="lg" className="w-full h-16 text-lg font-bold rounded-2xl shadow-md">
+                <Button
+                  size="lg"
+                  className="w-full h-16 text-lg font-bold rounded-2xl shadow-md"
+                >
                   Comenzar a Registrar Horas
                 </Button>
               </Link>
@@ -132,7 +152,9 @@ export default function SetupPage() {
   return (
     <div className="container mx-auto max-w-2xl px-4 py-8 md:py-16 pb-32">
       <div className="mb-12 text-center animate-in fade-in slide-in-from-top-4 duration-500 ease-spring">
-        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">Configuración</h1>
+        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">
+          Configuración
+        </h1>
         <p className="text-lg font-medium text-muted-foreground/80 text-balance">
           Personaliza tu entorno de trabajo.
         </p>
@@ -149,15 +171,20 @@ export default function SetupPage() {
                   : "bg-secondary text-secondary-foreground"
               )}
             >
-              {currentStep === step ? <Sparkles className="size-5" /> : index + 1}
+              {currentStep === step ? (
+                <Sparkles className="size-5" />
+              ) : (
+                index + 1
+              )}
             </div>
-            {index < 2 && <div className="w-8 sm:w-16 h-1 rounded-full bg-secondary mx-3" />}
+            {index < 2 && (
+              <div className="w-8 sm:w-16 h-1 rounded-full bg-secondary mx-3" />
+            )}
           </div>
         ))}
       </div>
 
       <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 ease-spring">
-        
         {currentStep === "targets" && (
           <div className="bg-background/60 backdrop-blur-3xl border border-border/40 rounded-[2.5rem] p-6 sm:p-10 shadow-sm">
             <div className="flex items-center gap-4 mb-8">
@@ -166,13 +193,18 @@ export default function SetupPage() {
               </div>
               <div>
                 <h2 className="text-2xl font-extrabold">Horas Objetivo</h2>
-                <p className="text-sm font-medium text-muted-foreground/80">Horas diarias esperadas.</p>
+                <p className="text-sm font-medium text-muted-foreground/80">
+                  Horas diarias esperadas.
+                </p>
               </div>
             </div>
 
             <div className="space-y-4">
               {DAYS_OF_WEEK.map((day) => (
-                <div key={day.key} className="flex items-center justify-between p-4 rounded-2xl bg-secondary/30 transition-colors hover:bg-secondary/50">
+                <div
+                  key={day.key}
+                  className="flex items-center justify-between p-4 rounded-2xl bg-secondary/30 transition-colors hover:bg-secondary/50"
+                >
                   <span className="font-bold capitalize">{day.label}</span>
                   <div className="w-24 relative">
                     <Input
@@ -181,17 +213,25 @@ export default function SetupPage() {
                       max="24"
                       step="0.5"
                       value={draftTargets[day.key]}
-                      onChange={(e) => handleTargetChange(day.key, Number(e.target.value))}
+                      onChange={(e) =>
+                        handleTargetChange(day.key, Number(e.target.value))
+                      }
                       className="h-12 bg-background/80 border-none font-bold text-center rounded-xl focus:ring-2 focus:ring-primary/20"
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground pointer-events-none">h</span>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground pointer-events-none">
+                      h
+                    </span>
                   </div>
                 </div>
               ))}
             </div>
 
             <div className="mt-10 flex justify-end">
-              <Button size="lg" className="h-14 px-8 font-bold rounded-full shadow-md" onClick={() => setCurrentStep("pay")}>
+              <Button
+                size="lg"
+                className="h-14 px-8 font-bold rounded-full shadow-md"
+                onClick={() => setCurrentStep("pay")}
+              >
                 Siguiente <ChevronRight className="ml-2 size-5" />
               </Button>
             </div>
@@ -206,34 +246,62 @@ export default function SetupPage() {
               </div>
               <div>
                 <h2 className="text-2xl font-extrabold">Salario</h2>
-                <p className="text-sm font-medium text-muted-foreground/80">Para calcular pagos extra.</p>
+                <p className="text-sm font-medium text-muted-foreground/80">
+                  Para calcular pagos extra.
+                </p>
               </div>
             </div>
 
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Base</label>
-                  <Select value={draftPaySettings.basis} onValueChange={(v) => setDraftPaySettings((c) => ({ ...c, basis: v as any }))}>
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
+                    Base
+                  </label>
+                  <Select
+                    value={draftPaySettings.basis}
+                    onValueChange={(v) =>
+                      setDraftPaySettings((c) => ({ ...c, basis: v as any }))
+                    }
+                  >
                     <SelectTrigger className="h-14 rounded-2xl bg-secondary/30 border-none font-bold px-4">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="rounded-2xl border-border/20 bg-background/80 backdrop-blur-xl">
                       {PAY_BASIS_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value} className="rounded-xl font-bold">{opt.label}</SelectItem>
+                        <SelectItem
+                          key={opt.value}
+                          value={opt.value}
+                          className="rounded-xl font-bold"
+                        >
+                          {opt.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Moneda</label>
-                  <Select value={draftPaySettings.currency} onValueChange={(v) => setDraftPaySettings((c) => ({ ...c, currency: v as any }))}>
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
+                    Moneda
+                  </label>
+                  <Select
+                    value={draftPaySettings.currency}
+                    onValueChange={(v) =>
+                      setDraftPaySettings((c) => ({ ...c, currency: v as any }))
+                    }
+                  >
                     <SelectTrigger className="h-14 rounded-2xl bg-secondary/30 border-none font-bold px-4">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="rounded-2xl border-border/20 bg-background/80 backdrop-blur-xl">
                       {CURRENCY_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value} className="rounded-xl font-bold">{opt.label}</SelectItem>
+                        <SelectItem
+                          key={opt.value}
+                          value={opt.value}
+                          className="rounded-xl font-bold"
+                        >
+                          {opt.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -241,7 +309,9 @@ export default function SetupPage() {
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Monto Base</label>
+                <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
+                  Monto Base
+                </label>
                 <div className="relative">
                   <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-muted-foreground" />
                   <Input
@@ -249,7 +319,12 @@ export default function SetupPage() {
                     min="0"
                     step="0.01"
                     value={draftPaySettings.amount}
-                    onChange={(e) => setDraftPaySettings((c) => ({ ...c, amount: Number(e.target.value) }))}
+                    onChange={(e) =>
+                      setDraftPaySettings((c) => ({
+                        ...c,
+                        amount: Number(e.target.value),
+                      }))
+                    }
                     className="h-16 pl-12 rounded-2xl bg-background border-border/40 font-black text-xl focus:ring-2 focus:ring-primary/20 shadow-inner"
                   />
                 </div>
@@ -257,25 +332,48 @@ export default function SetupPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Bonos Fijos</label>
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
+                    Bonos Fijos
+                  </label>
                   <Input
                     type="number"
                     min="0"
                     step="0.01"
                     value={draftPaySettings.allowances}
-                    onChange={(e) => setDraftPaySettings((c) => ({ ...c, allowances: Number(e.target.value) }))}
+                    onChange={(e) =>
+                      setDraftPaySettings((c) => ({
+                        ...c,
+                        allowances: Number(e.target.value),
+                      }))
+                    }
                     className="h-14 rounded-2xl bg-secondary/30 border-none font-bold px-4"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Mostrar</label>
-                  <Select value={draftPaySettings.salaryDisplayMode} onValueChange={(v) => setDraftPaySettings((c) => ({ ...c, salaryDisplayMode: v as any }))}>
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
+                    Mostrar
+                  </label>
+                  <Select
+                    value={draftPaySettings.salaryDisplayMode}
+                    onValueChange={(v) =>
+                      setDraftPaySettings((c) => ({
+                        ...c,
+                        salaryDisplayMode: v as any,
+                      }))
+                    }
+                  >
                     <SelectTrigger className="h-14 rounded-2xl bg-secondary/30 border-none font-bold px-4">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="rounded-2xl border-border/20 bg-background/80 backdrop-blur-xl">
                       {DISPLAY_MODE_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value} className="rounded-xl font-bold">{opt.label}</SelectItem>
+                        <SelectItem
+                          key={opt.value}
+                          value={opt.value}
+                          className="rounded-xl font-bold"
+                        >
+                          {opt.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -284,10 +382,19 @@ export default function SetupPage() {
             </div>
 
             <div className="mt-10 flex justify-between gap-4">
-              <Button size="lg" variant="ghost" className="h-14 px-8 font-bold rounded-full" onClick={() => setCurrentStep("targets")}>
+              <Button
+                size="lg"
+                variant="ghost"
+                className="h-14 px-8 font-bold rounded-full"
+                onClick={() => setCurrentStep("targets")}
+              >
                 <ArrowLeft className="mr-2 size-5" /> Atrás
               </Button>
-              <Button size="lg" className="h-14 px-8 font-bold rounded-full shadow-md" onClick={() => setCurrentStep("rules")}>
+              <Button
+                size="lg"
+                className="h-14 px-8 font-bold rounded-full shadow-md"
+                onClick={() => setCurrentStep("rules")}
+              >
                 Siguiente <ChevronRight className="ml-2 size-5" />
               </Button>
             </div>
@@ -302,13 +409,17 @@ export default function SetupPage() {
               </div>
               <div>
                 <h2 className="text-2xl font-extrabold">Reglas Laborales</h2>
-                <p className="text-sm font-medium text-muted-foreground/80">Leyes de tu país.</p>
+                <p className="text-sm font-medium text-muted-foreground/80">
+                  Leyes de tu país.
+                </p>
               </div>
             </div>
 
             <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl flex gap-3 mb-6">
               <Sparkles className="size-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm font-bold text-foreground">Reglas de Colombia cargadas. Se aplicarán automáticamente.</p>
+              <p className="text-sm font-bold text-foreground">
+                Reglas de Colombia cargadas. Se aplicarán automáticamente.
+              </p>
             </div>
 
             <div className="space-y-4">
@@ -317,8 +428,8 @@ export default function SetupPage() {
                   key={ruleSet.id}
                   className={cn(
                     "p-5 rounded-[1.5rem] border cursor-pointer transition-all duration-300 flex items-center justify-between",
-                    selectedRuleSetId === ruleSet.id 
-                      ? "border-foreground bg-foreground/5 shadow-sm" 
+                    selectedRuleSetId === ruleSet.id
+                      ? "border-foreground bg-foreground/5 shadow-sm"
                       : "border-border/40 bg-secondary/20 hover:bg-secondary/40"
                   )}
                   onClick={() => setSelectedRuleSetId(ruleSet.id)}
@@ -339,12 +450,17 @@ export default function SetupPage() {
             </div>
 
             <div className="mt-10 flex flex-col sm:flex-row justify-between gap-4">
-              <Button size="lg" variant="ghost" className="h-14 px-8 font-bold rounded-full" onClick={() => setCurrentStep("pay")}>
+              <Button
+                size="lg"
+                variant="ghost"
+                className="h-14 px-8 font-bold rounded-full"
+                onClick={() => setCurrentStep("pay")}
+              >
                 <ArrowLeft className="mr-2 size-5" /> Atrás
               </Button>
-              <Button 
-                size="lg" 
-                onClick={handleSaveSetup} 
+              <Button
+                size="lg"
+                onClick={handleSaveSetup}
                 disabled={isSaving}
                 className="h-14 px-8 font-bold rounded-full shadow-md"
               >
@@ -353,7 +469,6 @@ export default function SetupPage() {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
