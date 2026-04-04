@@ -1,0 +1,44 @@
+{
+  "name": "web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "serve": "vite preview",
+    "start": "vite",
+    "check-types": "vite build && tsc --noEmit",
+    "dev:bare": "vite dev",
+    "generate-pwa-assets": "pwa-assets-generator"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.1.1",
+    "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/react-router": "^1.141.1",
+    "@timesheet/env": "workspace:*",
+    "@timesheet/ui": "workspace:*",
+    "dotenv": "catalog:",
+    "lucide-react": "catalog:",
+    "next-themes": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "sonner": "catalog:",
+    "vite-plugin-pwa": "^1.0.1",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@tanstack/react-router-devtools": "^1.141.1",
+    "@tanstack/router-plugin": "^1.141.1",
+    "@timesheet/config": "workspace:*",
+    "@types/node": "^22.13.14",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vite-pwa/assets-generator": "^1.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "alchemy": "catalog:",
+    "postcss": "^8.5.3",
+    "tailwindcss": "catalog:",
+    "typescript": "^5",
+    "vite": "^6.2.2"
+  }
+}
