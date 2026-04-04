@@ -10,37 +10,12 @@ import {
   AlertDialogTitle,
 } from "@timesheet/ui/components/alert-dialog";
 import { Button } from "@timesheet/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@timesheet/ui/components/card";
-import {
-  Field,
-  FieldContent,
-  FieldLabel,
-  FieldGroup,
-} from "@timesheet/ui/components/field";
 import { Input } from "@timesheet/ui/components/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@timesheet/ui/components/select";
 import { cn } from "@timesheet/ui/lib/utils";
 import {
   ArrowLeft,
   Save,
-  Clock,
-  DollarSign,
-  Settings,
   Trash2,
-  CalendarDays,
-  ShieldAlert,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -79,24 +54,16 @@ const DISPLAY_MODE_OPTIONS = [
 ] as const;
 
 const CURRENCY_OPTIONS = [
-  { label: "COP - Peso Colombiano", value: "COP" },
-  { label: "USD - Dólar Estadounidense", value: "USD" },
-  { label: "EUR - Euro", value: "EUR" },
+  { label: "COP", value: "COP" },
+  { label: "USD", value: "USD" },
+  { label: "EUR", value: "EUR" },
 ] as const;
 
 type SettingsTab = "targets" | "pay" | "rules" | "logs";
 
-const getDayTypeLabel = (
-  dayType: "ordinary" | "sunday" | "holiday"
-): string => {
-  if (dayType === "sunday") {
-    return "Domingo";
-  }
-
-  if (dayType === "holiday") {
-    return "Festivo";
-  }
-
+const getDayTypeLabel = (dayType: "ordinary" | "sunday" | "holiday"): string => {
+  if (dayType === "sunday") return "Domingo";
+  if (dayType === "holiday") return "Festivo";
   return "Ordinario";
 };
 
@@ -106,6 +73,7 @@ export default function SettingsPage() {
   const { paySettings, updatePaySettings } = usePaySettings();
   const { ruleSets } = useLegalRuleSets();
   const { logs, deleteLog } = useWorkLogs();
+  
   const [activeTab, setActiveTab] = useState<SettingsTab>("targets");
   const [isSaving, setIsSaving] = useState(false);
   const [logToDelete, setLogToDelete] = useState<WorkLog | null>(null);
@@ -113,99 +81,71 @@ export default function SettingsPage() {
 
   const handleSaveTargets = async () => {
     setIsSaving(true);
-    try {
-      await saveSettings({ weeklyTargetHours: targets });
-    } finally {
-      setIsSaving(false);
-    }
+    await saveSettings({ weeklyTargetHours: targets });
+    setIsSaving(false);
   };
 
   const handleSavePay = async () => {
     setIsSaving(true);
-    try {
-      await saveSettings({ paySettings });
-    } finally {
-      setIsSaving(false);
-    }
+    await saveSettings({ paySettings });
+    setIsSaving(false);
   };
 
   const handleDeleteLog = async () => {
-    if (!logToDelete) {
-      return;
-    }
-
+    if (!logToDelete) return;
     setIsDeletingLog(true);
-
-    try {
-      await deleteLog(logToDelete.id);
-      setLogToDelete(null);
-    } finally {
-      setIsDeletingLog(false);
-    }
+    await deleteLog(logToDelete.id);
+    setLogToDelete(null);
+    setIsDeletingLog(false);
   };
 
   if (!settings) {
     return (
-      <div className="container mx-auto max-w-4xl px-4 py-8 animate-in fade-in duration-500">
-        <Card className="border-border/50 bg-card/50 backdrop-blur-xl">
-          <CardHeader>
-            <CardTitle>Configura tu perfil primero</CardTitle>
-            <CardDescription>
-              Necesitas completar la configuración inicial antes de editar
-              preferencias.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link to="/configuracion/inicial">
-              <Button>Ir a configuración inicial</Button>
-            </Link>
-          </CardContent>
-        </Card>
+      <div className="container mx-auto px-4 py-16 text-center max-w-xl">
+        <h2 className="text-4xl font-black uppercase mb-4 tracking-tighter">Configura tu perfil</h2>
+        <Link to="/configuracion/inicial">
+          <Button size="lg" className="h-16 w-full text-xl font-bold uppercase tracking-widest rounded-none">
+            Ir a configuración
+          </Button>
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-8 pb-32">
-      <div className="mb-10 flex items-center gap-6 animate-in fade-in slide-in-from-top-4 duration-500 ease-spring">
-        <Link to="/">
-          <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full hover:bg-secondary/60 transition-transform active:scale-95 ease-spring">
-            <ArrowLeft className="size-6" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight">Ajustes</h1>
-          <p className="text-base font-medium text-muted-foreground mt-1.5">
-            Gestiona tus preferencias, salario y base de datos.
-          </p>
-        </div>
+    <div className="container mx-auto max-w-5xl px-4 py-8 md:py-16 pb-32">
+      <Link to="/" className="inline-flex items-center text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors mb-12 group">
+        <ArrowLeft className="mr-2 size-4 group-hover:-translate-x-1 transition-transform" />
+        Volver
+      </Link>
+
+      <div className="mb-16">
+        <h1 className="text-5xl sm:text-7xl font-black tracking-tighter uppercase leading-[0.85] mb-4">Ajustes.</h1>
+        <p className="text-xl font-bold uppercase tracking-widest text-muted-foreground">Reglas, salario y datos</p>
       </div>
 
-      <div className="grid gap-8 md:grid-cols-12 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-spring">
-        {/* Sidebar Navigation */}
-        <div className="md:col-span-4 lg:col-span-3 min-w-0">
-          <nav className="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-4 md:pb-0 scrollbar-none snap-x snap-mandatory">
-            {(
-              [
-                ["targets", "Horas Objetivo", Clock],
-                ["pay", "Salario y Pagos", DollarSign],
-                ["rules", "Reglas Laborales", Settings],
-                ["logs", "Mis Registros", CalendarDays],
-              ] as const
-            ).map(([tab, label, Icon]) => {
+      <div className="grid gap-12 md:grid-cols-12">
+        
+        <div className="md:col-span-4 lg:col-span-3">
+          <nav className="flex flex-col gap-px bg-foreground/10 border border-foreground/10">
+            {([
+              ["targets", "Horas Objetivo"],
+              ["pay", "Salario"],
+              ["rules", "Reglas Legales"],
+              ["logs", "Historial"],
+            ] as const).map(([tab, label]) => {
               const isActive = activeTab === tab;
               return (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab as SettingsTab)}
                   className={cn(
-                    "flex items-center gap-3 rounded-2xl px-5 py-4 text-[15px] font-bold transition-all duration-300 ease-spring whitespace-nowrap md:whitespace-normal text-left snap-start",
+                    "text-left p-4 uppercase tracking-widest text-xs font-black transition-colors",
                     isActive
-                      ? "bg-primary/10 text-primary shadow-sm"
-                      : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground active:scale-[0.98]"
+                      ? "bg-foreground text-background"
+                      : "bg-background text-foreground hover:bg-secondary/50"
                   )}
                 >
-                  <Icon className={cn("size-5 shrink-0 transition-transform duration-300 ease-spring", isActive && "scale-110")} />
                   {label}
                 </button>
               );
@@ -213,369 +153,219 @@ export default function SettingsPage() {
           </nav>
         </div>
 
-        {/* Content Area */}
         <div className="md:col-span-8 lg:col-span-9">
+          
           {activeTab === "targets" && (
-            <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all animate-in fade-in slide-in-from-right-8 duration-500 ease-spring">
-              <CardHeader className="pb-6 border-b border-border/20 px-6 sm:px-8 pt-8">
-                <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                    <Clock className="size-6" />
-                  </div>
-                  Horas Objetivo Semanales
-                </CardTitle>
-                <CardDescription className="text-base mt-2 text-muted-foreground/80 leading-relaxed">
-                  Configura cuántas horas esperas trabajar cada día para que el sistema calcule tu balance correctamente.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-8 px-6 sm:px-8 pb-8">
-                <FieldGroup className="gap-4">
-                  {DAYS_OF_WEEK_ES.map((day) => (
-                    <div key={day.key} className="flex items-center justify-between p-4 sm:px-5 rounded-2xl bg-secondary/10 hover:bg-secondary/30 transition-colors duration-300 ease-spring border border-transparent hover:border-border/40 shadow-sm">
-                      <FieldLabel className="text-[15px] font-bold capitalize text-foreground m-0">{day.label}</FieldLabel>
-                      <div className="w-32">
-                        <Input
-                          type="number"
-                          min="0"
-                          max="24"
-                          step="0.5"
-                          value={targets[day.key as keyof typeof targets]}
-                          onChange={(e) =>
-                            updateTargets({
-                              [day.key]: Number(e.target.value),
-                            } as Partial<typeof targets>)
-                          }
-                          className="h-14 bg-background shadow-inner text-center font-extrabold text-lg rounded-xl border-border/30 focus-visible:ring-primary/30"
-                        />
-                      </div>
+            <div className="border border-foreground/10 p-6 md:p-12">
+              <h2 className="text-2xl font-black tracking-tighter uppercase mb-8">Horas Objetivo</h2>
+              <div className="flex flex-col gap-px bg-foreground/10 border border-foreground/10 mb-8">
+                {DAYS_OF_WEEK_ES.map((day) => (
+                  <div key={day.key} className="flex items-center justify-between p-4 bg-background hover:bg-secondary/20 transition-colors">
+                    <span className="font-black uppercase tracking-widest text-sm">{day.label}</span>
+                    <div className="w-24 relative">
+                      <Input
+                        type="number"
+                        min="0"
+                        max="24"
+                        step="0.5"
+                        value={targets[day.key as keyof typeof targets]}
+                        onChange={(e) => updateTargets({ [day.key]: Number(e.target.value) } as any)}
+                        className="h-12 bg-transparent border border-foreground/10 font-black text-center rounded-none shadow-none focus-visible:ring-1 focus-visible:ring-foreground"
+                      />
                     </div>
-                  ))}
-                </FieldGroup>
-                <div className="mt-10 flex justify-end">
-                  <Button size="lg" onClick={handleSaveTargets} disabled={isSaving} className="h-14 rounded-2xl px-10 text-base font-bold shadow-lg transition-transform active:scale-95 ease-spring">
-                    <Save className="mr-2 size-5" />
-                    {isSaving ? "Guardando..." : "Guardar Cambios"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                ))}
+              </div>
+              <Button size="lg" onClick={handleSaveTargets} disabled={isSaving} className="h-14 w-full sm:w-auto px-8 font-black uppercase tracking-widest rounded-none shadow-none text-background bg-foreground">
+                <Save className="mr-3 size-5" />
+                {isSaving ? "Guardando..." : "Guardar"}
+              </Button>
+            </div>
           )}
 
           {activeTab === "pay" && (
-            <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all animate-in fade-in slide-in-from-right-8 duration-500 ease-spring">
-              <CardHeader className="pb-6 border-b border-border/20 px-6 sm:px-8 pt-8">
-                <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                    <DollarSign className="size-6" />
-                  </div>
-                  Configuración de Salario
-                </CardTitle>
-                <CardDescription className="text-base mt-2 text-muted-foreground/80 leading-relaxed">
-                  Ajusta tu salario base y preferencias de moneda para el cálculo automático.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-8 px-6 sm:px-8 pb-8">
-                <FieldGroup className="gap-8">
-                  <div className="grid gap-6 sm:grid-cols-2">
-                    <Field>
-                      <FieldLabel className="font-bold text-muted-foreground uppercase tracking-widest text-[11px] mb-2">Base de Pago</FieldLabel>
-                      <FieldContent>
-                        <Select
-                          value={paySettings.basis}
-                          onValueChange={(v) =>
-                            updatePaySettings({
-                              basis: (v ??
-                                paySettings.basis) as typeof paySettings.basis,
-                            })
-                          }
+            <div className="border border-foreground/10 p-6 md:p-12">
+              <h2 className="text-2xl font-black tracking-tighter uppercase mb-8">Salario</h2>
+              <div className="space-y-6 mb-8">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">Base</label>
+                    <div className="flex flex-col gap-1 border border-foreground/10 p-1">
+                      {PAY_BASIS_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => updatePaySettings({ basis: opt.value as any })}
+                          className={cn("text-xs font-black uppercase tracking-widest p-3 text-left transition-colors", paySettings.basis === opt.value ? "bg-foreground text-background" : "hover:bg-secondary/20")}
                         >
-                          <SelectTrigger className="h-14 text-base font-semibold rounded-2xl bg-secondary/10 border-border/30 focus:ring-primary/30 shadow-sm px-4 hover:bg-secondary/20 transition-colors">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="rounded-2xl border-border/30 bg-background/80 backdrop-blur-xl">
-                            {PAY_BASIS_OPTIONS.map((opt) => (
-                              <SelectItem key={opt.value} value={opt.value} className="rounded-xl font-medium focus:bg-primary/10 focus:text-primary">
-                                {opt.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FieldContent>
-                    </Field>
-
-                    <Field>
-                      <FieldLabel className="font-bold text-muted-foreground uppercase tracking-widest text-[11px] mb-2">Moneda</FieldLabel>
-                      <FieldContent>
-                        <Select
-                          value={paySettings.currency}
-                          onValueChange={(v) =>
-                            updatePaySettings({
-                              currency: v ?? paySettings.currency,
-                            })
-                          }
-                        >
-                          <SelectTrigger className="h-14 text-base font-semibold rounded-2xl bg-secondary/10 border-border/30 focus:ring-primary/30 shadow-sm px-4 hover:bg-secondary/20 transition-colors">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="rounded-2xl border-border/30 bg-background/80 backdrop-blur-xl">
-                            {CURRENCY_OPTIONS.map((opt) => (
-                              <SelectItem key={opt.value} value={opt.value} className="rounded-xl font-medium focus:bg-primary/10 focus:text-primary">
-                                {opt.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FieldContent>
-                    </Field>
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-
-                  <Field>
-                    <FieldLabel className="font-bold text-muted-foreground uppercase tracking-widest text-[11px] mb-2">Monto del Salario Base</FieldLabel>
-                    <FieldContent>
-                      <div className="relative group">
-                        <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-transform duration-300 ease-spring group-focus-within:scale-110">
-                          <DollarSign className="size-5 text-muted-foreground group-focus-within:text-primary" />
-                        </div>
-                        <Input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={paySettings.amount}
-                          onChange={(e) =>
-                            updatePaySettings({
-                              amount: Number(e.target.value),
-                            })
-                          }
-                          className="pl-14 h-16 text-xl font-extrabold rounded-2xl bg-background shadow-inner border-border/30 focus-visible:ring-primary/30"
-                        />
-                      </div>
-                    </FieldContent>
-                  </Field>
-
-                  <div className="grid gap-6 sm:grid-cols-2">
-                    <Field>
-                      <FieldLabel className="font-bold text-muted-foreground uppercase tracking-widest text-[11px] mb-2">Otros Ingresos / Bonos</FieldLabel>
-                      <FieldContent>
-                        <Input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={paySettings.allowances}
-                          onChange={(e) =>
-                            updatePaySettings({
-                              allowances: Number(e.target.value),
-                            })
-                          }
-                          className="h-14 text-base font-semibold rounded-2xl bg-background shadow-inner border-border/30 focus-visible:ring-primary/30 px-4"
-                        />
-                      </FieldContent>
-                    </Field>
-
-                    <Field>
-                      <FieldLabel className="font-bold text-muted-foreground uppercase tracking-widest text-[11px] mb-2">Mostrar Salario Como</FieldLabel>
-                      <FieldContent>
-                        <Select
-                          value={paySettings.salaryDisplayMode}
-                          onValueChange={(v) =>
-                            updatePaySettings({
-                              salaryDisplayMode: (v ??
-                                paySettings.salaryDisplayMode) as typeof paySettings.salaryDisplayMode,
-                            })
-                          }
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">Moneda</label>
+                    <div className="flex flex-col gap-1 border border-foreground/10 p-1">
+                      {CURRENCY_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => updatePaySettings({ currency: opt.value as any })}
+                          className={cn("text-xs font-black uppercase tracking-widest p-3 text-left transition-colors", paySettings.currency === opt.value ? "bg-foreground text-background" : "hover:bg-secondary/20")}
                         >
-                          <SelectTrigger className="h-14 text-base font-semibold rounded-2xl bg-secondary/10 border-border/30 focus:ring-primary/30 shadow-sm px-4 hover:bg-secondary/20 transition-colors">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="rounded-2xl border-border/30 bg-background/80 backdrop-blur-xl">
-                            {DISPLAY_MODE_OPTIONS.map((opt) => (
-                              <SelectItem key={opt.value} value={opt.value} className="rounded-xl font-medium focus:bg-primary/10 focus:text-primary">
-                                {opt.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FieldContent>
-                    </Field>
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </FieldGroup>
-                <div className="mt-10 flex justify-end">
-                  <Button size="lg" onClick={handleSavePay} disabled={isSaving} className="h-14 rounded-2xl px-10 text-base font-bold shadow-lg transition-transform active:scale-95 ease-spring">
-                    <Save className="mr-2 size-5" />
-                    {isSaving ? "Guardando..." : "Guardar Cambios"}
-                  </Button>
                 </div>
-              </CardContent>
-            </Card>
+
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">Monto Base</label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={paySettings.amount}
+                    onChange={(e) => updatePaySettings({ amount: Number(e.target.value) })}
+                    className="h-16 text-3xl font-black rounded-none shadow-none border-foreground/10 focus-visible:ring-1 focus-visible:ring-foreground"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">Bonos</label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={paySettings.allowances}
+                      onChange={(e) => updatePaySettings({ allowances: Number(e.target.value) })}
+                      className="h-14 font-black rounded-none shadow-none border-foreground/10 focus-visible:ring-1 focus-visible:ring-foreground"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">Mostrar</label>
+                    <div className="flex flex-col gap-1 border border-foreground/10 p-1">
+                      {DISPLAY_MODE_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => updatePaySettings({ salaryDisplayMode: opt.value as any })}
+                          className={cn("text-[10px] font-black uppercase tracking-widest p-2 text-left transition-colors", paySettings.salaryDisplayMode === opt.value ? "bg-foreground text-background" : "hover:bg-secondary/20")}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Button size="lg" onClick={handleSavePay} disabled={isSaving} className="h-14 w-full sm:w-auto px-8 font-black uppercase tracking-widest rounded-none shadow-none text-background bg-foreground">
+                <Save className="mr-3 size-5" />
+                {isSaving ? "Guardando..." : "Guardar"}
+              </Button>
+            </div>
           )}
 
           {activeTab === "rules" && (
-            <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all animate-in fade-in slide-in-from-right-8 duration-500 ease-spring">
-              <CardHeader className="pb-6 border-b border-border/20 px-6 sm:px-8 pt-8">
-                <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-secondary text-foreground">
-                    <Settings className="size-6" />
-                  </div>
-                  Conjuntos de Reglas Laborales
-                </CardTitle>
-                <CardDescription className="text-base mt-2 text-muted-foreground/80 leading-relaxed">
-                  El sistema aplica estas reglas automáticamente según la fecha de cada registro.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-8 px-6 sm:px-8 pb-8">
-                <div className="space-y-6">
-                  {ruleSets.map((rs) => (
-                    <div key={rs.id} className="rounded-3xl border border-border/30 bg-secondary/10 p-6 transition-all duration-300 ease-spring hover:bg-secondary/20 hover:border-border/50 hover:shadow-md">
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 mb-6">
-                        <div>
-                          <div className="flex items-center gap-3">
-                            <h3 className="font-extrabold text-xl text-foreground">{rs.name}</h3>
-                            {settings?.activeRuleSetId === rs.id && (
-                              <span className="rounded-lg bg-primary/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-primary">
-                                Activo
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm font-medium text-muted-foreground mt-2 bg-background/50 inline-block px-3 py-1 rounded-lg">
-                            Vigencia: {rs.effectiveFrom}
-                            {rs.effectiveTo && ` hasta ${rs.effectiveTo}`}
-                          </p>
-                        </div>
-                        <div className="bg-background rounded-2xl px-4 py-2 border border-border/40 inline-flex self-start shadow-sm">
-                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Jornada Máxima: <span className="text-foreground text-sm ml-1">{rs.legalWeeklyMaxHours}h</span></span>
-                        </div>
+            <div className="border border-foreground/10 p-6 md:p-12">
+              <h2 className="text-2xl font-black tracking-tighter uppercase mb-8">Reglas</h2>
+              <div className="space-y-6">
+                {ruleSets.map((rs) => (
+                  <div key={rs.id} className="border border-foreground/10 p-6 bg-background">
+                    <div className="flex items-center gap-4 mb-6 pb-4 border-b border-foreground/10">
+                      <h3 className="font-black text-xl tracking-tighter uppercase">{rs.name}</h3>
+                      {settings?.activeRuleSetId === rs.id && (
+                        <span className="bg-foreground text-background px-2 py-1 text-[9px] font-black uppercase tracking-widest">
+                          Activo
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                      <div>
+                        <p className="text-[9px] font-black uppercase tracking-widest opacity-50 mb-1">Diurno</p>
+                        <p className="font-black">{rs.daytimeStart} - {rs.daytimeEnd}</p>
                       </div>
-                      
-                      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 pt-6 border-t border-border/20">
-                        <div className="bg-background/80 rounded-2xl p-4 border border-border/20 shadow-sm hover:scale-105 transition-transform duration-300 ease-spring">
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Horario Diurno</p>
-                          <p className="text-[15px] font-extrabold">{rs.daytimeStart} - {rs.daytimeEnd}</p>
-                        </div>
-                        <div className="bg-background/80 rounded-2xl p-4 border border-border/20 shadow-sm hover:scale-105 transition-transform duration-300 ease-spring">
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Horario Nocturno</p>
-                          <p className="text-[15px] font-extrabold">{rs.nighttimeStart} - {rs.nighttimeEnd}</p>
-                        </div>
-                        <div className="bg-background/80 rounded-2xl p-4 border border-primary/10 shadow-sm hover:scale-105 transition-transform duration-300 ease-spring">
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80 mb-2">Recargo Nocturno</p>
-                          <p className="text-lg font-black text-primary">+{rs.ordinaryNightSurchargePct}%</p>
-                        </div>
-                        <div className="bg-background/80 rounded-2xl p-4 border border-amber-500/10 shadow-sm hover:scale-105 transition-transform duration-300 ease-spring">
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500/80 mb-2">Hora Extra Diurna</p>
-                          <p className="text-lg font-black text-amber-500">+{rs.daytimeOvertimePct}%</p>
-                        </div>
+                      <div>
+                        <p className="text-[9px] font-black uppercase tracking-widest opacity-50 mb-1">Nocturno</p>
+                        <p className="font-black">{rs.nighttimeStart} - {rs.nighttimeEnd}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black uppercase tracking-widest opacity-50 mb-1">Recargo Nocturno</p>
+                        <p className="font-black">+{rs.ordinaryNightSurchargePct}%</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black uppercase tracking-widest opacity-50 mb-1">Extra Diurna</p>
+                        <p className="font-black">+{rs.daytimeOvertimePct}%</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
           {activeTab === "logs" && (
-            <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all animate-in fade-in slide-in-from-right-8 duration-500 ease-spring">
-              <CardHeader className="pb-6 border-b border-border/20 px-6 sm:px-8 pt-8">
-                <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                    <CalendarDays className="size-6" />
-                  </div>
-                  Registros Guardados
-                </CardTitle>
-                <CardDescription className="text-base mt-2 text-muted-foreground/80 leading-relaxed">
-                  Gestiona, revisa o elimina tus registros históricos de tiempo.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-8 px-6 sm:px-8 pb-8">
-                {logs.length === 0 ? (
-                  <div className="rounded-3xl border border-dashed border-border/40 bg-secondary/5 p-16 text-center">
-                    <CalendarDays className="mx-auto mb-6 size-12 text-muted-foreground/40" />
-                    <p className="text-xl font-bold">No hay registros guardados</p>
-                    <p className="text-base text-muted-foreground mt-2">Tus horas trabajadas aparecerán aquí.</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {logs.map((log) => (
-                      <div
-                        key={log.id}
-                        className="group flex items-center justify-between rounded-2xl border border-border/30 bg-background/60 p-5 transition-all duration-300 ease-spring hover:border-primary/30 hover:shadow-md hover:scale-[1.01]"
-                      >
-                        <div className="flex items-center gap-5">
-                          <div className={cn(
-                            "flex size-14 shrink-0 items-center justify-center rounded-2xl font-bold text-xl shadow-inner",
-                            log.dayType === "sunday" || log.dayType === "holiday"
-                              ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-                              : "bg-primary/15 text-primary"
-                          )}>
-                            {parseDateKey(log.date).getDate()}
-                          </div>
-                          <div>
-                            <p className="font-bold text-foreground capitalize text-lg">
-                              {parseDateKey(log.date).toLocaleDateString("es-CO", {
-                                month: "long",
-                                weekday: "long",
-                                year: "numeric",
-                              })}
-                            </p>
-                            <div className="flex items-center gap-3 mt-1.5">
-                              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest bg-secondary/50 px-2 py-0.5 rounded-md">
-                                {getDayTypeLabel(log.dayType)}
-                              </span>
-                              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest bg-secondary/50 px-2 py-0.5 rounded-md">
-                                {log.calculationSnapshot
-                                  ? `${formatMinutesAsHours(log.calculationSnapshot.totalWorkedMinutes)} trab.`
-                                  : `${log.segments.length} seg.`}
-                              </span>
-                            </div>
-                          </div>
+            <div className="border border-foreground/10 p-6 md:p-12">
+              <h2 className="text-2xl font-black tracking-tighter uppercase mb-8">Historial</h2>
+              
+              {logs.length === 0 ? (
+                <div className="border border-dashed border-foreground/10 p-16 text-center">
+                  <p className="text-sm font-black uppercase tracking-widest opacity-50">Sin registros</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-px bg-foreground/10 border border-foreground/10">
+                  {logs.map((log) => (
+                    <div key={log.id} className="flex items-center justify-between p-4 bg-background hover:bg-secondary/20 transition-colors group">
+                      <div className="flex items-center gap-6">
+                        <div className="text-3xl font-black tracking-tighter w-12 text-center">
+                          {parseDateKey(log.date).getDate()}
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-spring text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl h-12 w-12"
-                          onClick={() => setLogToDelete(log)}
-                        >
-                          <Trash2 className="size-6" />
-                        </Button>
+                        <div>
+                          <p className="font-black text-lg uppercase tracking-tighter">
+                            {parseDateKey(log.date).toLocaleDateString("es-CO", { month: "short", weekday: "long" })}
+                          </p>
+                          <p className="text-[10px] font-black uppercase tracking-widest opacity-50 mt-1">
+                            {getDayTypeLabel(log.dayType)} • {log.calculationSnapshot ? formatMinutesAsHours(log.calculationSnapshot.totalWorkedMinutes) : "--"}
+                          </p>
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground hover:text-background hover:bg-foreground rounded-none h-12 w-12 transition-colors"
+                        onClick={() => setLogToDelete(log)}
+                      >
+                        <Trash2 className="size-5" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
+
         </div>
       </div>
 
-      <AlertDialog
-        open={logToDelete !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setLogToDelete(null);
-          }
-        }}
-      >
-        <AlertDialogContent className="rounded-3xl border-border/20 bg-background/80 backdrop-blur-3xl shadow-[0_24px_60px_rgba(0,0,0,0.2)] p-8">
+      <AlertDialog open={logToDelete !== null} onOpenChange={(o) => !o && setLogToDelete(null)}>
+        <AlertDialogContent className="rounded-none border border-foreground/10 p-8 shadow-none bg-background">
           <AlertDialogHeader>
-            <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-destructive/10 text-destructive shadow-inner">
-              <ShieldAlert className="size-8" />
-            </div>
-            <AlertDialogTitle className="text-center text-2xl font-extrabold">¿Eliminar registro?</AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-[15px] mt-3 text-muted-foreground/90 leading-relaxed">
-              {logToDelete && (
-                <>
-                  Estás a punto de eliminar permanentemente el registro del <span className="font-bold text-foreground px-1 py-0.5 bg-secondary/50 rounded-md">{parseDateKey(logToDelete.date).toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })}</span>. Esta acción no se puede deshacer y afectará tus resúmenes.
-                </>
-              )}
+            <AlertDialogTitle className="text-2xl font-black tracking-tighter uppercase mb-2">Eliminar registro</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm font-bold uppercase tracking-widest opacity-60">
+              Esta acción es irreversible.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="sm:justify-center gap-4 mt-8 flex-col sm:flex-row">
-            <AlertDialogCancel disabled={isDeletingLog} className="rounded-2xl h-14 sm:w-36 text-base font-bold shadow-sm transition-transform active:scale-95 ease-spring border-border/30 hover:bg-secondary/60 m-0">
+          <AlertDialogFooter className="mt-8 flex flex-col sm:flex-row gap-4 sm:space-x-0">
+            <AlertDialogCancel disabled={isDeletingLog} className="rounded-none h-14 w-full sm:w-auto font-black uppercase tracking-widest border border-foreground/10 bg-transparent">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={isDeletingLog}
               onClick={handleDeleteLog}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-2xl h-14 sm:w-36 text-base font-bold shadow-lg transition-transform active:scale-95 ease-spring m-0"
+              className="rounded-none h-14 w-full sm:w-auto font-black uppercase tracking-widest bg-foreground text-background shadow-none border border-foreground"
             >
-              {isDeletingLog ? "Eliminando..." : "Eliminar"}
+              {isDeletingLog ? "..." : "Confirmar"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

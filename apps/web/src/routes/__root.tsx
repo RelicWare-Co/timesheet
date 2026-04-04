@@ -3,7 +3,6 @@ import {
   Outlet,
   createRootRouteWithContext,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Toaster } from "@timesheet/ui/components/sonner";
 
 import Header from "@/components/header";
@@ -18,24 +17,21 @@ const RootComponent = () => (
     <HeadContent />
     <ThemeProvider
       attribute="class"
-      defaultTheme="dark"
+      defaultTheme="system"
+      enableSystem
       disableTransitionOnChange
       storageKey="vite-ui-theme"
     >
-      <div className="relative flex min-h-svh flex-col bg-background font-sans antialiased selection:bg-primary/20 selection:text-primary">
-        {/* Elegant blur background */}
-        <div className="fixed inset-0 -z-10 bg-background" />
-        <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_100%_100%_at_50%_-20%,rgba(120,119,198,0.08),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_100%_100%_at_50%_-20%,rgba(120,119,198,0.12),rgba(255,255,255,0))]" />
-        
+      <div className="flex min-h-svh flex-col bg-background text-foreground font-sans antialiased selection:bg-foreground selection:text-background">
         <Header />
         
-        <main className="flex-1 pb-28 md:pb-8 pt-4 md:pt-8 w-full">
+        {/* Main content area - brutalist clean padding */}
+        <main className="flex-1 w-full flex flex-col pt-14 md:pt-16 pb-16 md:pb-0">
           <Outlet />
         </main>
       </div>
-      <Toaster richColors closeButton position="top-center" theme="system" />
+      <Toaster richColors closeButton position="bottom-center" theme="system" />
     </ThemeProvider>
-    <TanStackRouterDevtools position="bottom-left" />
   </>
 );
 
@@ -53,18 +49,18 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         title: "Timesheet",
       },
       {
-        content: "Gestiona tus horas de trabajo de forma elegante",
+        content: "Timesheet Management",
         name: "description",
-      },
-      {
-        name: "theme-color",
-        content: "#000000",
-        media: "(prefers-color-scheme: dark)",
       },
       {
         name: "theme-color",
         content: "#ffffff",
         media: "(prefers-color-scheme: light)",
+      },
+      {
+        name: "theme-color",
+        content: "#000000",
+        media: "(prefers-color-scheme: dark)",
       },
     ],
   }),

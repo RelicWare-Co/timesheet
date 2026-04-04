@@ -1,26 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@timesheet/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@timesheet/ui/components/card";
 import { cn } from "@timesheet/ui/lib/utils";
 import { addWeeks, endOfWeek, format, startOfWeek } from "date-fns";
 import { es } from "date-fns/locale";
 import {
-  Clock,
-  TrendingUp,
-  DollarSign,
-  AlertCircle,
-  Plus,
   ArrowRight,
-  Calendar,
   ChevronLeft,
   ChevronRight,
-  Settings
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -40,15 +26,9 @@ import {
 const getDayTypeLabel = (
   dayType: "ordinary" | "sunday" | "holiday"
 ): string => {
-  if (dayType === "sunday") {
-    return "Domingo";
-  }
-
-  if (dayType === "holiday") {
-    return "Festivo";
-  }
-
-  return "Ordinario";
+  if (dayType === "sunday") return "DOM";
+  if (dayType === "holiday") return "FES";
+  return "ORD";
 };
 
 export default function ResumenPage() {
@@ -68,14 +48,9 @@ export default function ResumenPage() {
   const weekEndKey = formatDateKey(weekEnd);
 
   const weeklyData = useMemo(() => {
-    if (!settings) {
-      return null;
-    }
-
+    if (!settings) return null;
     const ruleSet = getActiveRuleSet(ruleSets, weekStart);
-    if (!ruleSet) {
-      return null;
-    }
+    if (!ruleSet) return null;
 
     const weekLogs = logs.filter(
       (log) => log.date >= weekStartKey && log.date <= weekEndKey
@@ -104,311 +79,187 @@ export default function ResumenPage() {
     () =>
       logs
         .filter((log) => log.date >= weekStartKey && log.date <= weekEndKey)
-        .sort((a, b) => a.date.localeCompare(b.date)),
+        .sort((a, b) => b.date.localeCompare(a.date)),
     [logs, weekEndKey, weekStartKey]
   );
 
   if (!settings) {
     return (
-      <div className="container mx-auto max-w-4xl px-4 py-8 animate-in fade-in duration-500">
-        <Card className="border-border/50 bg-card/50 backdrop-blur-xl">
-          <CardHeader>
-            <CardTitle>Bienvenido a Timesheet</CardTitle>
-            <CardDescription>
-              Configura tu perfil para comenzar a registrar tus horas.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link to="/configuracion/inicial">
-              <Button>
-                Comenzar Configuración
-                <ArrowRight className="ml-2 size-4" />
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+      <div className="container mx-auto px-4 py-16 text-center max-w-xl">
+        <h2 className="text-4xl font-black uppercase mb-4 tracking-tighter">Bienvenido</h2>
+        <Link to="/configuracion/inicial">
+          <Button size="lg" className="h-16 w-full text-xl font-bold uppercase tracking-widest rounded-none">
+            Comenzar <ArrowRight className="ml-2" />
+          </Button>
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-8 pb-32">
-      <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between animate-in fade-in slide-in-from-top-4 duration-500 ease-spring">
+    <div className="container mx-auto max-w-5xl px-4 py-8 md:py-16 pb-32">
+      
+      <div className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight">Resumen Semanal</h1>
-          <p className="text-base text-muted-foreground mt-1.5 capitalize font-medium">
-            {format(weekStart, "d 'de' MMMM", { locale: es })} -{" "}
-            {format(weekEnd, "d 'de' MMMM yyyy", { locale: es })}
+          <h1 className="text-5xl sm:text-7xl font-black tracking-tighter uppercase leading-[0.85] mb-4">
+            Resumen.
+          </h1>
+          <p className="text-xl font-bold uppercase tracking-widest text-muted-foreground">
+            {format(weekStart, "d MMM", { locale: es })} - {format(weekEnd, "d MMM", { locale: es })}
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-background/60 p-2 rounded-2xl border border-border/30 backdrop-blur-xl shadow-sm self-start sm:self-auto overflow-x-auto max-w-full transition-all ease-spring hover:shadow-md">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-xl h-10 w-10 hover:bg-secondary/60 active:scale-95 transition-transform ease-spring"
+        
+        <div className="flex items-center border border-foreground/10 bg-background w-fit">
+          <button
+            className="p-3 hover:bg-foreground hover:text-background transition-colors active:scale-95"
             onClick={() => setWeekOffset(weekOffset - 1)}
           >
-            <ChevronLeft className="size-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="rounded-xl px-5 h-10 font-bold hover:bg-secondary/60 active:scale-95 transition-transform ease-spring"
+            <ChevronLeft className="size-6" />
+          </button>
+          <button
+            className="px-6 h-[50px] font-black uppercase tracking-widest text-sm border-x border-foreground/10 hover:bg-foreground hover:text-background transition-colors"
             onClick={() => setWeekOffset(0)}
             disabled={weekOffset === 0}
           >
-            Hoy
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-xl h-10 w-10 hover:bg-secondary/60 active:scale-95 transition-transform ease-spring"
+            Actual
+          </button>
+          <button
+            className="p-3 hover:bg-foreground hover:text-background transition-colors active:scale-95"
             onClick={() => setWeekOffset(weekOffset + 1)}
           >
-            <ChevronRight className="size-5" />
-          </Button>
+            <ChevronRight className="size-6" />
+          </button>
         </div>
       </div>
 
       {weeklyData && (
-        <div className="mb-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-spring">
-          <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all duration-300 ease-spring hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(var(--primary),0.06)]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 px-6 pt-6">
-              <CardTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                Objetivo
-              </CardTitle>
-              <div className="rounded-xl bg-secondary/80 p-2 text-muted-foreground shadow-inner">
-                <Clock className="size-4" />
-              </div>
-            </CardHeader>
-            <CardContent className="px-6 pb-6">
-              <div className="text-4xl font-extrabold tracking-tight">
-                {formatMinutesAsHours(
-                  Math.round(weeklyData.scheduledHours * 60)
-                )}
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid gap-px bg-foreground/10 border border-foreground/10 md:grid-cols-2 lg:grid-cols-4 mb-16">
+          
+          <div className="bg-background p-6 hover:bg-secondary/20 transition-colors flex flex-col justify-between min-h-[160px]">
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Objetivo</span>
+            <p className="text-5xl font-black tracking-tighter">
+              {formatMinutesAsHours(Math.round(weeklyData.scheduledHours * 60))}
+            </p>
+          </div>
 
-          <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all duration-300 ease-spring hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(var(--primary),0.06)]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 px-6 pt-6">
-              <CardTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                Trabajadas
-              </CardTitle>
-              <div className="rounded-xl bg-primary/10 p-2 text-primary shadow-inner">
-                <TrendingUp className="size-4" />
-              </div>
-            </CardHeader>
-            <CardContent className="px-6 pb-6">
-              <div className="text-4xl font-extrabold tracking-tight text-foreground">
-                {formatMinutesAsHours(Math.round(weeklyData.workedHours * 60))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="bg-background p-6 hover:bg-secondary/20 transition-colors flex flex-col justify-between min-h-[160px]">
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Trabajado</span>
+            <p className="text-5xl font-black tracking-tighter">
+              {formatMinutesAsHours(Math.round(weeklyData.workedHours * 60))}
+            </p>
+          </div>
 
-          <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all duration-300 ease-spring hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(245,158,11,0.06)]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 px-6 pt-6">
-              <CardTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                Extras
-              </CardTitle>
-              <div className={cn("rounded-xl p-2 shadow-inner transition-colors duration-300", weeklyData.overtimeHours > 0 ? "bg-amber-500/15 text-amber-500" : "bg-secondary/80 text-muted-foreground")}>
-                <AlertCircle className="size-4" />
-              </div>
-            </CardHeader>
-            <CardContent className="px-6 pb-6">
-              <div
-                className={cn(
-                  "text-4xl font-extrabold tracking-tight transition-colors duration-300",
-                  weeklyData.overtimeHours > 0
-                    ? "text-amber-500 drop-shadow-[0_0_12px_rgba(245,158,11,0.3)]"
-                    : "text-muted-foreground"
-                )}
-              >
-                {formatMinutesAsHours(
-                  Math.round(weeklyData.overtimeHours * 60)
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="bg-background p-6 hover:bg-secondary/20 transition-colors flex flex-col justify-between min-h-[160px]">
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Extras</span>
+            <p className={cn("text-5xl font-black tracking-tighter", weeklyData.overtimeHours > 0 ? "text-foreground" : "text-muted-foreground/30")}>
+              {formatMinutesAsHours(Math.round(weeklyData.overtimeHours * 60))}
+            </p>
+          </div>
 
-          <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all duration-300 ease-spring hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(34,197,94,0.08)] relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500 ease-spring pointer-events-none" />
-            <CardHeader className="flex flex-row items-center justify-between pb-2 px-6 pt-6 relative">
-              <CardTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                Pago Estimado
-              </CardTitle>
-              <div className="rounded-xl bg-green-500/15 p-2 shadow-inner">
-                <DollarSign className="size-4 text-green-600 dark:text-green-400" />
-              </div>
-            </CardHeader>
-            <CardContent className="px-6 pb-6 relative">
-              <div className="text-3xl sm:text-4xl font-extrabold tracking-tight text-green-600 dark:text-green-400 truncate drop-shadow-[0_0_12px_rgba(34,197,94,0.3)]">
-                {paySettings.currency === "COP"
-                  ? `$${weeklyData.estimatedPay.toLocaleString()}`
-                  : `${paySettings.currency} ${weeklyData.estimatedPay.toFixed(2)}`}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="bg-foreground text-background p-6 transition-colors flex flex-col justify-between min-h-[160px]">
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-70">Estimado</span>
+            <p className="text-4xl font-black tracking-tighter truncate">
+              {paySettings.currency === "COP"
+                ? `$${weeklyData.estimatedPay.toLocaleString()}`
+                : `${paySettings.currency} ${weeklyData.estimatedPay.toFixed(2)}`}
+            </p>
+          </div>
+
         </div>
       )}
 
-      <div className="grid gap-8 lg:grid-cols-12 animate-in fade-in slide-in-from-bottom-12 duration-700 delay-150 fill-mode-both ease-spring">
-        <div className="lg:col-span-4 space-y-8">
-          <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all duration-300">
-            <CardHeader className="px-6 pt-6 pb-4">
-              <CardTitle className="text-xl font-bold">Balance</CardTitle>
-            </CardHeader>
-            <CardContent className="px-6 pb-6">
-              {weeklyData && (
-                <div className="space-y-8">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex justify-between items-end">
-                      <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                        Progreso Semanal
-                      </span>
-                      <span className="text-sm font-bold bg-secondary/80 px-3 py-1 rounded-xl shadow-inner">
-                        {weeklyData.scheduledHours > 0
-                          ? Math.round(
-                              (weeklyData.workedHours / weeklyData.scheduledHours) *
-                                100
-                            )
-                          : 0}
-                        %
-                      </span>
-                    </div>
-                    <div className="h-4 w-full rounded-full bg-secondary/50 overflow-hidden shadow-inner p-0.5">
-                      <div 
-                        className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all duration-1000 ease-spring shadow-[0_0_10px_rgba(var(--primary),0.5)]"
-                        style={{ width: `${Math.min(100, weeklyData.scheduledHours > 0 ? (weeklyData.workedHours / weeklyData.scheduledHours) * 100 : 0)}%` }}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-between items-center p-4 rounded-2xl bg-secondary/20 border border-border/20 shadow-sm transition-transform hover:scale-[1.02] duration-300 ease-spring">
-                    <span className="text-[13px] font-bold uppercase tracking-widest text-muted-foreground">
-                      Diferencia
-                    </span>
-                    <span
-                      className={cn(
-                        "font-extrabold text-2xl tracking-tight drop-shadow-sm",
-                        weeklyData.balanceHours >= 0
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
-                      )}
-                    >
-                      {weeklyData.balanceHours >= 0 ? "+" : ""}
-                      {formatMinutesAsHours(
-                        Math.round(weeklyData.balanceHours * 60)
-                      )}
-                    </span>
-                  </div>
+      <div className="grid gap-16 lg:grid-cols-12">
+        
+        {/* Balance */}
+        <div className="lg:col-span-5">
+          <h2 className="text-xl font-black tracking-tighter uppercase mb-6 border-b border-foreground/10 pb-2">Balance</h2>
+          {weeklyData && (
+            <div className="space-y-8">
+              
+              <div>
+                <div className="flex justify-between items-end mb-2">
+                  <span className="text-xs font-black uppercase tracking-widest opacity-50">Progreso</span>
+                  <span className="text-3xl font-black">
+                    {weeklyData.scheduledHours > 0
+                      ? Math.round((weeklyData.workedHours / weeklyData.scheduledHours) * 100)
+                      : 0}%
+                  </span>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+                <div className="h-4 w-full bg-foreground/10 border border-foreground/10">
+                  <div 
+                    className="h-full bg-foreground transition-all duration-1000 ease-out"
+                    style={{ width: `${Math.min(100, weeklyData.scheduledHours > 0 ? (weeklyData.workedHours / weeklyData.scheduledHours) * 100 : 0)}%` }}
+                  />
+                </div>
+              </div>
+              
+              <div className="p-6 border border-foreground/10 flex justify-between items-center bg-background">
+                <span className="text-xs font-black uppercase tracking-widest opacity-50">Diferencia</span>
+                <span className="font-black text-4xl tracking-tighter">
+                  {weeklyData.balanceHours >= 0 ? "+" : ""}
+                  {formatMinutesAsHours(Math.round(weeklyData.balanceHours * 60))}
+                </span>
+              </div>
 
-          <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all duration-300">
-            <CardHeader className="px-6 pt-6 pb-4">
-              <CardTitle className="text-xl font-bold">Acciones Rápidas</CardTitle>
-            </CardHeader>
-            <CardContent className="px-6 pb-6 flex flex-col gap-4">
-              <Link to="/registrar" className="w-full">
-                <Button className="w-full h-14 justify-start rounded-2xl shadow-lg transition-transform active:scale-[0.97] ease-spring text-base font-semibold">
-                  <Plus className="mr-3 size-5" />
-                  Registrar Horas
-                </Button>
-              </Link>
-              <Link to="/configuracion" className="w-full">
-                <Button variant="secondary" className="w-full h-14 justify-start rounded-2xl shadow-sm transition-transform active:scale-[0.97] ease-spring text-base font-semibold bg-secondary/60 hover:bg-secondary/90">
-                  <Settings className="mr-3 size-5" />
-                  Ajustes
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+            </div>
+          )}
         </div>
 
-        <div className="lg:col-span-8">
-          <Card className="h-full border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all duration-300">
-            <CardHeader className="px-6 pt-6 pb-6">
-              <CardTitle className="text-xl font-bold flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                  <Calendar className="size-5" />
-                </div>
-                Registros de la Semana
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-6 pb-6">
-              {dailyLogs.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center rounded-3xl border border-dashed border-border/40 bg-secondary/5">
-                  <div className="rounded-full bg-secondary/50 p-5 mb-5 shadow-inner">
-                    <Clock className="size-10 text-muted-foreground/60" />
-                  </div>
-                  <p className="text-xl font-bold">
-                    No hay registros
-                  </p>
-                  <p className="text-base text-muted-foreground mt-2 mb-8 max-w-[280px]">
-                    Comienza a registrar tus horas para ver tu progreso.
-                  </p>
-                  <Link to="/registrar">
-                    <Button className="rounded-2xl h-12 px-6 shadow-md font-semibold active:scale-[0.97] transition-transform ease-spring">
-                      <Plus className="mr-2 size-5" />
-                      Primer Día
-                    </Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {dailyLogs.map((log) => (
-                    <div
-                      key={log.id}
-                      className="group flex items-center justify-between rounded-2xl border border-border/20 bg-background/50 p-5 shadow-sm transition-all duration-300 ease-spring hover:border-primary/30 hover:shadow-md hover:scale-[1.01]"
-                    >
-                      <div className="flex items-center gap-5">
-                        <div
-                          className={cn(
-                            "flex size-14 shrink-0 items-center justify-center rounded-2xl font-bold text-xl shadow-inner",
-                            log.dayType === "sunday" || log.dayType === "holiday"
-                              ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-                              : "bg-primary/15 text-primary"
-                          )}
-                        >
-                          {format(parseDateKey(log.date), "d", { locale: es })}
-                        </div>
-                        <div>
-                          <p className="font-bold text-lg text-foreground capitalize">
-                            {format(parseDateKey(log.date), "EEEE", { locale: es })}
-                          </p>
-                          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mt-0.5">
-                            {getDayTypeLabel(log.dayType)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-extrabold tracking-tight text-foreground">
-                          {log.calculationSnapshot
-                            ? formatMinutesAsHours(
-                                log.calculationSnapshot.totalWorkedMinutes
-                              )
-                            : "--:--"}
-                        </p>
-                        {log.calculationSnapshot?.totalOvertimeMinutes &&
-                          log.calculationSnapshot.totalOvertimeMinutes > 0 && (
-                            <p className="text-[11px] font-bold uppercase tracking-widest text-amber-500 mt-1">
-                              +
-                              {formatMinutesAsHours(
-                                log.calculationSnapshot.totalOvertimeMinutes
-                              )} extras
-                            </p>
-                          )}
-                      </div>
+        {/* Logs */}
+        <div className="lg:col-span-7">
+          <div className="flex items-center justify-between border-b border-foreground/10 pb-2 mb-6">
+            <h2 className="text-xl font-black tracking-tighter uppercase">Historial</h2>
+          </div>
+
+          {dailyLogs.length === 0 ? (
+            <div className="border border-foreground/10 border-dashed p-12 text-center">
+              <p className="text-sm font-black uppercase tracking-widest text-muted-foreground mb-4">Sin registros</p>
+              <Link to="/registrar">
+                <Button className="rounded-none h-12 px-8 font-black uppercase tracking-widest">
+                  Registrar
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-px bg-foreground/10 border border-foreground/10">
+              {dailyLogs.map((log) => (
+                <Link
+                  key={log.id}
+                  to="/registrar"
+                  search={{ date: log.date }}
+                  className="bg-background p-4 flex items-center justify-between hover:bg-foreground hover:text-background transition-colors group"
+                >
+                  <div className="flex items-center gap-6">
+                    <div className="text-3xl font-black tracking-tighter w-12 text-center group-hover:text-background">
+                      {format(parseDateKey(log.date), "d", { locale: es })}
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    <div>
+                      <p className="font-black text-xl uppercase tracking-tighter">
+                        {format(parseDateKey(log.date), "EEE", { locale: es })}
+                      </p>
+                      <p className="text-[10px] font-black uppercase tracking-widest opacity-50">
+                        {getDayTypeLabel(log.dayType)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-black tracking-tighter">
+                      {log.calculationSnapshot
+                        ? formatMinutesAsHours(log.calculationSnapshot.totalWorkedMinutes)
+                        : "--:--"}
+                    </p>
+                    {log.calculationSnapshot?.totalOvertimeMinutes && log.calculationSnapshot.totalOvertimeMinutes > 0 ? (
+                      <p className="text-[10px] font-black uppercase tracking-widest">
+                        +{formatMinutesAsHours(log.calculationSnapshot.totalOvertimeMinutes)}
+                      </p>
+                    ) : null}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
+
       </div>
     </div>
   );
