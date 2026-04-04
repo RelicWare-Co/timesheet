@@ -1,15 +1,22 @@
 import { describe, it, expect } from "vitest";
 
 import { COLOMBIAN_RULES_2026 } from "./colombian-rules";
+import { parseDateKey } from "./date";
 import {
   calculateDailyHours,
   calculatePayBreakdown,
+  calculateWeeklySummary,
   createCalculationSnapshot,
   formatMinutesAsHours,
   getActiveRuleSet,
   getTargetHoursForDay,
 } from "./rules-engine";
-import type { LegalRuleSet, PaySettings, WeeklyTargetHours } from "./types";
+import type {
+  LegalRuleSet,
+  PaySettings,
+  WeeklyTargetHours,
+  WorkLog,
+} from "./types";
 
 const DEFAULT_TARGETS: WeeklyTargetHours = {
   friday: 8,
@@ -170,6 +177,43 @@ describe("calculateDailyHours", () => {
 
     expect(result.totalWorkedMinutes).toBe(480);
     expect(result.totalOvertimeMinutes).toBe(480);
+  });
+
+  it("allocates overtime chronologically across day and night hours", () => {
+    const result = calculateDailyHours(
+      new Date("2026-01-05"),
+      [{ endTime: "06:00", startTime: "20:00" }],
+      [],
+      "ordinary",
+      8,
+      COLOMBIAN_RULES_2026,
+      0
+    );
+
+    expect(result.totalWorkedMinutes).toBe(600);
+    expect(result.ordinaryDayMinutes).toBe(120);
+    expect(result.ordinaryNightMinutes).toBe(360);
+    expect(result.overtimeDayMinutes).toBe(0);
+    expect(result.overtimeNightMinutes).toBe(120);
+  });
+
+  it("subtracts breaks that occur after midnight", () => {
+    const result = calculateDailyHours(
+      new Date("2026-01-05"),
+      [{ endTime: "06:00", startTime: "22:00" }],
+      [{ endTime: "03:00", startTime: "02:00" }],
+      "ordinary",
+      8,
+      COLOMBIAN_RULES_2026,
+      0
+    );
+
+    expect(result.totalWorkedMinutes).toBe(420);
+    expect(result.totalBreakMinutes).toBe(60);
+    expect(result.ordinaryDayMinutes).toBe(0);
+    expect(result.ordinaryNightMinutes).toBe(420);
+    expect(result.overtimeDayMinutes).toBe(0);
+    expect(result.overtimeNightMinutes).toBe(0);
   });
 });
 
@@ -334,5 +378,85 @@ describe("createCalculationSnapshot", () => {
     expect(snapshot.totalWorkedMinutes).toBe(480);
     expect(snapshot.breakdown).toEqual(payBreakdown);
     expect(snapshot.calculatedAt).toBeInstanceOf(Date);
+  });
+});
+
+describe("calculateWeeklySummary", () => {
+  it("uses the stored rule set for each log when recalculating", () => {
+    const ruleSets: LegalRuleSet[] = [
+      {
+        ...COLOMBIAN_RULES_2026,
+        createdAt: new Date("2026-01-01"),
+        daytimeOvertimePct: 25,
+        effectiveFrom: "2026-01-01",
+        effectiveTo: "2026-01-03",
+        id: "rule-a",
+        name: "Rule A",
+        updatedAt: new Date("2026-01-01"),
+      },
+      {
+        ...COLOMBIAN_RULES_2026,
+        createdAt: new Date("2026-01-04"),
+        daytimeOvertimePct: 100,
+        effectiveFrom: "2026-01-04",
+        effectiveTo: "2026-12-31",
+        id: "rule-b",
+        name: "Rule B",
+        updatedAt: new Date("2026-01-04"),
+      },
+    ];
+
+    const log: WorkLog = {
+      breaks: [],
+      calculationSnapshot: null,
+      createdAt: new Date("2026-01-05"),
+      date: "2026-01-05",
+      dayType: "ordinary",
+      id: "log-1",
+      note: "",
+      ruleSetId: "rule-b",
+      segments: [{ endTime: "18:00", startTime: "08:00" }],
+      updatedAt: new Date("2026-01-05"),
+    };
+
+    const summary = calculateWeeklySummary(
+      new Date("2026-01-01"),
+      new Date("2026-01-07"),
+      [log],
+      DEFAULT_TARGETS,
+      ruleSets[0],
+      DEFAULT_PAY,
+      ruleSets
+    );
+
+    const calculation = calculateDailyHours(
+      new Date("2026-01-05"),
+      log.segments,
+      log.breaks,
+      log.dayType,
+      getTargetHoursForDay(new Date("2026-01-05"), DEFAULT_TARGETS),
+      ruleSets[1],
+      0
+    );
+    const expectedBreakdown = calculatePayBreakdown(
+      calculation,
+      DEFAULT_PAY,
+      ruleSets[1]
+    );
+    const legacyBreakdown = calculatePayBreakdown(
+      calculation,
+      DEFAULT_PAY,
+      ruleSets[0]
+    );
+
+    expect(summary.estimatedPay).toBe(expectedBreakdown.totalEstimatedPay);
+    expect(summary.estimatedPay).not.toBe(legacyBreakdown.totalEstimatedPay);
+  });
+});
+
+describe("parseDateKey", () => {
+  it("rejects invalid date keys", () => {
+    expect(Number.isNaN(parseDateKey("2026-02-31").getTime())).toBe(true);
+    expect(Number.isNaN(parseDateKey("not-a-date").getTime())).toBe(true);
   });
 });

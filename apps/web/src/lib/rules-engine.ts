@@ -10,11 +10,6 @@ import type {
   WorkSegment,
 } from "@/lib/types";
 
-interface TimeSegmentResult {
-  dayMinutes: number;
-  nightMinutes: number;
-}
-
 interface DailyCalculationResult {
   totalWorkedMinutes: number;
   totalBreakMinutes: number;
@@ -26,6 +21,11 @@ interface DailyCalculationResult {
   sundayHolidayOrdinaryMinutes: number;
   sundayHolidayOvertimeMinutes: number;
   totalOvertimeMinutes: number;
+}
+
+interface TimeInterval {
+  end: number;
+  start: number;
 }
 
 const parseTimeToMinutes = (timeStr: string): number => {
@@ -45,157 +45,91 @@ const isTimeInRange = (
   return timeMinutes >= rangeStart || timeMinutes < rangeEnd;
 };
 
-const splitSegmentByDayNight = (
-  startMinutes: number,
-  endMinutes: number,
-  daytimeStart: number,
-  daytimeEnd: number,
-  nighttimeStart: number,
-  nighttimeEnd: number
-): TimeSegmentResult => {
-  let dayMinutes = 0;
-  let nightMinutes = 0;
+const createContinuousInterval = (
+  startTime: string,
+  endTime: string
+): TimeInterval | null => {
+  const start = parseTimeToMinutes(startTime);
+  let end = parseTimeToMinutes(endTime);
 
-  const totalMinutes =
-    endMinutes > startMinutes
-      ? endMinutes - startMinutes
-      : 1440 - startMinutes + endMinutes;
-
-  for (let minuteOffset = 0; minuteOffset < totalMinutes; minuteOffset += 1) {
-    const currentMinute = (startMinutes + minuteOffset) % 1440;
-    const isDaytime = isTimeInRange(currentMinute, daytimeStart, daytimeEnd);
-    const isNighttime = isTimeInRange(
-      currentMinute,
-      nighttimeStart,
-      nighttimeEnd
-    );
-
-    if (isNighttime) {
-      nightMinutes += 1;
-    } else if (isDaytime) {
-      dayMinutes += 1;
-    }
+  if (Number.isNaN(start) || Number.isNaN(end)) {
+    return null;
   }
 
-  return { dayMinutes, nightMinutes };
-};
-
-const subtractBreaksFromSegments = (
-  segments: WorkSegment[],
-  breaks: BreakSegment[]
-): WorkSegment[] => {
-  const result: WorkSegment[] = [];
-
-  for (const segment of segments) {
-    const segStart = parseTimeToMinutes(segment.startTime);
-    let segEnd = parseTimeToMinutes(segment.endTime);
-
-    if (segEnd <= segStart) {
-      segEnd += 1440;
-    }
-
-    const breakIntervals: [number, number][] = breaks.map((breakSegment) => {
-      const breakStart = parseTimeToMinutes(breakSegment.startTime);
-      let breakEnd = parseTimeToMinutes(breakSegment.endTime);
-
-      if (breakEnd <= breakStart) {
-        breakEnd += 1440;
-      }
-
-      return [breakStart, breakEnd];
-    });
-
-    breakIntervals.sort((a, b) => a[0] - b[0]);
-
-    let currentStart = segStart;
-    const adjustedSegments: [number, number][] = [];
-
-    for (const [breakStart, breakEnd] of breakIntervals) {
-      if (breakEnd <= currentStart) {
-        continue;
-      }
-
-      if (breakStart >= segEnd) {
-        break;
-      }
-
-      if (breakStart > currentStart) {
-        adjustedSegments.push([currentStart, Math.min(breakStart, segEnd)]);
-      }
-
-      currentStart = Math.max(currentStart, breakEnd);
-    }
-
-    if (currentStart < segEnd) {
-      adjustedSegments.push([currentStart, segEnd]);
-    }
-
-    if (adjustedSegments.length === 0 && segEnd - segStart > 0) {
-      adjustedSegments.push([segStart, segEnd]);
-    }
-
-    for (const [startMinutes, endMinutes] of adjustedSegments) {
-      if (endMinutes > startMinutes) {
-        const startStr = `${Math.floor(startMinutes / 60) % 24}:${String(startMinutes % 60).padStart(2, "0")}`;
-        const endStr = `${Math.floor(endMinutes / 60) % 24}:${String(endMinutes % 60).padStart(2, "0")}`;
-        result.push({ endTime: endStr, startTime: startStr });
-      }
-    }
+  if (end <= start) {
+    end += 1440;
   }
 
-  return result;
+  return { end, start };
 };
 
-const calculateMinutesInSegments = (
-  segments: WorkSegment[],
-  daytimeStart: number,
-  daytimeEnd: number,
-  nighttimeStart: number,
-  nighttimeEnd: number
-): TimeSegmentResult => {
-  let totalDay = 0;
-  let totalNight = 0;
+const mergeContinuousIntervals = (
+  intervals: TimeInterval[]
+): TimeInterval[] => {
+  if (intervals.length === 0) {
+    return [];
+  }
 
-  for (const segment of segments) {
-    const start = parseTimeToMinutes(segment.startTime);
-    const end = parseTimeToMinutes(segment.endTime);
+  const sortedIntervals = [...intervals].toSorted(
+    (a, b) => a.start - b.start || a.end - b.end
+  );
+  const mergedIntervals: TimeInterval[] = [{ ...sortedIntervals[0] }];
 
-    if (end > start) {
-      const result = splitSegmentByDayNight(
-        start,
-        end,
-        daytimeStart,
-        daytimeEnd,
-        nighttimeStart,
-        nighttimeEnd
-      );
-      totalDay += result.dayMinutes;
-      totalNight += result.nightMinutes;
+  for (const interval of sortedIntervals.slice(1)) {
+    const currentInterval = mergedIntervals.at(-1);
+
+    if (!currentInterval) {
       continue;
     }
 
-    const firstPart = splitSegmentByDayNight(
-      start,
-      1440,
-      daytimeStart,
-      daytimeEnd,
-      nighttimeStart,
-      nighttimeEnd
-    );
-    const secondPart = splitSegmentByDayNight(
-      0,
-      end,
-      daytimeStart,
-      daytimeEnd,
-      nighttimeStart,
-      nighttimeEnd
-    );
+    if (interval.start <= currentInterval.end) {
+      currentInterval.end = Math.max(currentInterval.end, interval.end);
+      continue;
+    }
 
-    totalDay += firstPart.dayMinutes + secondPart.dayMinutes;
-    totalNight += firstPart.nightMinutes + secondPart.nightMinutes;
+    mergedIntervals.push({ ...interval });
   }
 
-  return { dayMinutes: totalDay, nightMinutes: totalNight };
+  return mergedIntervals;
+};
+
+const buildBreakIntervals = (breaks: BreakSegment[]): TimeInterval[] => {
+  const intervals: TimeInterval[] = [];
+
+  for (const breakSegment of breaks) {
+    const interval = createContinuousInterval(
+      breakSegment.startTime,
+      breakSegment.endTime
+    );
+
+    if (!interval) {
+      continue;
+    }
+
+    intervals.push(interval, {
+      end: interval.end + 1440,
+      start: interval.start + 1440,
+    });
+  }
+
+  return mergeContinuousIntervals(intervals);
+};
+
+const isMinuteCoveredByIntervals = (
+  minute: number,
+  intervals: TimeInterval[]
+): boolean => {
+  for (const interval of intervals) {
+    if (minute < interval.start) {
+      break;
+    }
+
+    if (minute < interval.end) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
 export const calculateDailyHours = (
@@ -205,39 +139,37 @@ export const calculateDailyHours = (
   dayType: "ordinary" | "sunday" | "holiday",
   targetHoursForDay: number,
   ruleSet: LegalRuleSet,
-  weeklyOvertimeAlreadyWorked: number
+  weeklyWorkedAlreadyMinutes: number
 ): DailyCalculationResult => {
-  let totalBreakMinutes = 0;
-
-  for (const breakSegment of breaks) {
-    const breakStart = parseTimeToMinutes(breakSegment.startTime);
-    let breakEnd = parseTimeToMinutes(breakSegment.endTime);
-
-    if (breakEnd <= breakStart) {
-      breakEnd += 1440;
-    }
-
-    totalBreakMinutes += breakEnd - breakStart;
-  }
-
-  const adjustedSegments = subtractBreaksFromSegments(segments, breaks);
-  const daytimeStart = parseTimeToMinutes(ruleSet.daytimeStart);
-  const daytimeEnd = parseTimeToMinutes(ruleSet.daytimeEnd);
+  const workIntervals = mergeContinuousIntervals(
+    segments
+      .map((segment) =>
+        createContinuousInterval(segment.startTime, segment.endTime)
+      )
+      .filter((interval): interval is TimeInterval => interval !== null)
+  );
+  const breakIntervals = buildBreakIntervals(breaks);
   const nighttimeStart = parseTimeToMinutes(ruleSet.nighttimeStart);
   const nighttimeEnd = parseTimeToMinutes(ruleSet.nighttimeEnd);
-
-  const { dayMinutes, nightMinutes } = calculateMinutesInSegments(
-    adjustedSegments,
-    daytimeStart,
-    daytimeEnd,
-    nighttimeStart,
-    nighttimeEnd
+  const isSundayOrHoliday = dayType === "sunday" || dayType === "holiday";
+  const targetMinutesForDay = Math.max(0, Math.round(targetHoursForDay * 60));
+  const weeklyMaxMinutes = Math.max(
+    0,
+    Math.round(ruleSet.legalWeeklyMaxHours * 60)
+  );
+  const weeklyRemainingCapacity = Math.max(
+    0,
+    weeklyMaxMinutes - weeklyWorkedAlreadyMinutes
   );
 
-  const totalWorkedMinutes = dayMinutes + nightMinutes;
-  const payableMinutes = totalWorkedMinutes;
-  const targetMinutesForDay = targetHoursForDay * 60;
-
+  let ordinaryMinutesRemaining = isSundayOrHoliday
+    ? targetMinutesForDay
+    : Math.min(targetMinutesForDay, weeklyRemainingCapacity);
+  let sundayHolidayOrdinaryMinutesRemaining = isSundayOrHoliday
+    ? targetMinutesForDay
+    : 0;
+  let totalBreakMinutes = 0;
+  let totalWorkedMinutes = 0;
   let ordinaryDayMinutes = 0;
   let ordinaryNightMinutes = 0;
   let overtimeDayMinutes = 0;
@@ -245,47 +177,48 @@ export const calculateDailyHours = (
   let sundayHolidayOrdinaryMinutes = 0;
   let sundayHolidayOvertimeMinutes = 0;
 
-  if (dayType === "sunday" || dayType === "holiday") {
-    const sundayOrdinaryLimit = targetMinutesForDay;
-    if (payableMinutes <= sundayOrdinaryLimit) {
-      sundayHolidayOrdinaryMinutes = payableMinutes;
-    } else {
-      sundayHolidayOrdinaryMinutes = sundayOrdinaryLimit;
-      sundayHolidayOvertimeMinutes = payableMinutes - sundayOrdinaryLimit;
-    }
-  } else {
-    const weeklyMaxMinutes = ruleSet.legalWeeklyMaxHours * 60;
-    const remainingWeeklyCapacity = Math.max(
-      0,
-      weeklyMaxMinutes - weeklyOvertimeAlreadyWorked
-    );
+  for (const interval of workIntervals) {
+    for (let minute = interval.start; minute < interval.end; minute += 1) {
+      if (isMinuteCoveredByIntervals(minute, breakIntervals)) {
+        totalBreakMinutes += 1;
+        continue;
+      }
 
-    let ordinaryMinutes = Math.min(payableMinutes, targetMinutesForDay);
-    let overtimeMinutes = Math.max(0, payableMinutes - targetMinutesForDay);
+      totalWorkedMinutes += 1;
 
-    if (weeklyOvertimeAlreadyWorked >= weeklyMaxMinutes) {
-      ordinaryMinutes = 0;
-      overtimeMinutes = payableMinutes;
-    } else if (
-      weeklyOvertimeAlreadyWorked + payableMinutes >
-      weeklyMaxMinutes
-    ) {
-      const availableOrdinary = remainingWeeklyCapacity;
-      ordinaryMinutes = Math.min(ordinaryMinutes, availableOrdinary);
-      overtimeMinutes = payableMinutes - ordinaryMinutes;
-    }
+      if (isSundayOrHoliday) {
+        if (sundayHolidayOrdinaryMinutesRemaining > 0) {
+          sundayHolidayOrdinaryMinutes += 1;
+          sundayHolidayOrdinaryMinutesRemaining -= 1;
+        } else {
+          sundayHolidayOvertimeMinutes += 1;
+        }
+        continue;
+      }
 
-    if (overtimeMinutes > 0 && payableMinutes > 0) {
-      const overtimeRatio = overtimeMinutes / payableMinutes;
-      ordinaryDayMinutes = Math.round(dayMinutes * (1 - overtimeRatio));
-      ordinaryNightMinutes = Math.round(nightMinutes * (1 - overtimeRatio));
-      overtimeDayMinutes = Math.round(dayMinutes * overtimeRatio);
-      overtimeNightMinutes = Math.round(nightMinutes * overtimeRatio);
-    } else {
-      ordinaryDayMinutes = dayMinutes;
-      ordinaryNightMinutes = nightMinutes;
+      const minuteOfDay = minute % 1440;
+      const isNighttime = isTimeInRange(
+        minuteOfDay,
+        nighttimeStart,
+        nighttimeEnd
+      );
+
+      if (ordinaryMinutesRemaining > 0) {
+        if (isNighttime) {
+          ordinaryNightMinutes += 1;
+        } else {
+          ordinaryDayMinutes += 1;
+        }
+        ordinaryMinutesRemaining -= 1;
+      } else if (isNighttime) {
+        overtimeNightMinutes += 1;
+      } else {
+        overtimeDayMinutes += 1;
+      }
     }
   }
+
+  const payableMinutes = totalWorkedMinutes;
 
   return {
     ordinaryDayMinutes,
@@ -446,7 +379,8 @@ export const calculateWeeklySummary = (
   logs: WorkLog[],
   targets: WeeklyTargetHours,
   ruleSet: LegalRuleSet,
-  paySettings: PaySettings
+  paySettings: PaySettings,
+  ruleSets: LegalRuleSet[] = [ruleSet]
 ): {
   scheduledHours: number;
   workedHours: number;
@@ -477,6 +411,7 @@ export const calculateWeeklySummary = (
     current.setDate(current.getDate() + 1);
   }
 
+  const availableRuleSets = ruleSets.length > 0 ? ruleSets : [ruleSet];
   const weekLogs = [...logs]
     .filter((log) => isDateKeyWithinRange(log.date, weekStartKey, weekEndKey))
     .toSorted((a, b) => a.date.localeCompare(b.date));
@@ -501,19 +436,23 @@ export const calculateWeeklySummary = (
     }
 
     const targetHoursForDay = getTargetHoursForDay(logDate, targets);
+    const logRuleSet =
+      availableRuleSets.find((candidate) => candidate.id === log.ruleSetId) ??
+      getActiveRuleSet(availableRuleSets, logDate) ??
+      ruleSet;
     const calculation = calculateDailyHours(
       logDate,
       log.segments,
       log.breaks,
       log.dayType,
       targetHoursForDay,
-      ruleSet,
+      logRuleSet,
       cumulativeWorkedMinutes
     );
     const payBreakdown = calculatePayBreakdown(
       calculation,
       paySettings,
-      ruleSet
+      logRuleSet
     );
 
     workedHours += calculation.totalWorkedMinutes / 60;

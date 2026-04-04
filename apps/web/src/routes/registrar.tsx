@@ -6,7 +6,7 @@ import { cn } from "@timesheet/ui/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, Clock, Save, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   useHolidays,
@@ -16,7 +16,7 @@ import {
   useWeeklyTargets,
   useWorkLogs,
 } from "@/hooks/use-timesheet-data";
-import { formatDateKey } from "@/lib/date";
+import { formatDateKey, parseDateKey } from "@/lib/date";
 import {
   calculateDailyHours,
   calculatePayBreakdown,
@@ -261,13 +261,15 @@ export default function RegistrarPage() {
   const { targets } = useWeeklyTargets();
   const { paySettings } = usePaySettings();
   const { ruleSets } = useLegalRuleSets();
-  const { isHoliday } = useHolidays();
-  const { saveLog, logs } = useWorkLogs();
+  const { isHoliday, loading: holidaysLoading } = useHolidays();
+  const { saveLog, logs, loading: logsLoading } = useWorkLogs();
+  const hasInitializedSelection = useRef(false);
 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [dayType, setDayType] = useState<"ordinary" | "sunday" | "holiday">(
     "ordinary"
   );
+  const [editingLog, setEditingLog] = useState<WorkLog | null>(null);
   const [segments, setSegments] = useState<SegmentInput[]>([
     { endTime: "17:00", id: generateId(), startTime: "09:00" },
   ]);
@@ -324,48 +326,76 @@ export default function RegistrarPage() {
     targets,
   ]);
 
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      setSelectedDate(date);
-      const dayOfWeek = date.getDay();
-      const holidayName = isHoliday(date);
-      const dateKey = formatDateKey(date);
+  const handleDateSelect = useCallback(
+    (date: Date | undefined) => {
+      if (date) {
+        setSelectedDate(date);
+        const dayOfWeek = date.getDay();
+        const holidayName = isHoliday(date);
+        const dateKey = formatDateKey(date);
 
-      if (dayOfWeek === 0) {
-        setDayType("sunday");
-      } else if (holidayName) {
-        setDayType("holiday");
-      } else {
-        setDayType("ordinary");
-      }
+        if (dayOfWeek === 0) {
+          setDayType("sunday");
+        } else if (holidayName) {
+          setDayType("holiday");
+        } else {
+          setDayType("ordinary");
+        }
 
-      const existingLog = logs.find((log) => log.date === dateKey);
-      if (existingLog) {
-        setSegments(
-          existingLog.segments.map((segment) => ({
-            endTime: segment.endTime,
-            id: generateId(),
-            startTime: segment.startTime,
-          }))
-        );
-        setBreaks(
-          existingLog.breaks.map((breakSegment) => ({
-            endTime: breakSegment.endTime,
-            id: generateId(),
-            startTime: breakSegment.startTime,
-          }))
-        );
-        setNote(existingLog.note);
-        setDayType(existingLog.dayType);
-      } else {
-        setSegments([
-          { endTime: "17:00", id: generateId(), startTime: "09:00" },
-        ]);
-        setBreaks([]);
-        setNote("");
+        const existingLog = logs.find((log) => log.date === dateKey);
+        if (existingLog) {
+          setEditingLog(existingLog);
+          setSegments(
+            existingLog.segments.map((segment) => ({
+              endTime: segment.endTime,
+              id: generateId(),
+              startTime: segment.startTime,
+            }))
+          );
+          setBreaks(
+            existingLog.breaks.map((breakSegment) => ({
+              endTime: breakSegment.endTime,
+              id: generateId(),
+              startTime: breakSegment.startTime,
+            }))
+          );
+          setNote(existingLog.note);
+          setDayType(existingLog.dayType);
+        } else {
+          setEditingLog(null);
+          setSegments([
+            { endTime: "17:00", id: generateId(), startTime: "09:00" },
+          ]);
+          setBreaks([]);
+          setNote("");
+        }
       }
+    },
+    [isHoliday, logs]
+  );
+
+  useEffect(() => {
+    if (hasInitializedSelection.current) {
+      return;
     }
-  };
+
+    if (logsLoading || holidaysLoading) {
+      return;
+    }
+
+    const rawSearchDate =
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("date");
+    const parsedSearchDate = rawSearchDate ? parseDateKey(rawSearchDate) : null;
+    const initialDate =
+      parsedSearchDate && !Number.isNaN(parsedSearchDate.getTime())
+        ? parsedSearchDate
+        : new Date();
+
+    hasInitializedSelection.current = true;
+    handleDateSelect(initialDate);
+  }, [handleDateSelect, holidaysLoading, logsLoading]);
 
   const addSegment = () => {
     setSegments([
@@ -424,58 +454,65 @@ export default function RegistrarPage() {
       return;
     }
     setIsSaving(true);
-    const ruleSet = getActiveRuleSet(ruleSets, selectedDate);
-    const dateStr = formatDateKey(selectedDate);
-    const targetHours = getTargetHoursForDay(selectedDate, targets);
+    try {
+      const ruleSet = getActiveRuleSet(ruleSets, selectedDate);
+      const dateStr = formatDateKey(selectedDate);
+      const targetHours = getTargetHoursForDay(selectedDate, targets);
 
-    const workSegments = segments.map(({ endTime, startTime }) => ({
-      endTime,
-      startTime,
-    }));
-    const breakSegments = breaks.map(({ endTime, startTime }) => ({
-      endTime,
-      startTime,
-    }));
+      const workSegments = segments.map(({ endTime, startTime }) => ({
+        endTime,
+        startTime,
+      }));
+      const breakSegments = breaks.map(({ endTime, startTime }) => ({
+        endTime,
+        startTime,
+      }));
 
-    let snapshot = null;
-    if (ruleSet) {
-      const calculation = calculateDailyHours(
-        selectedDate,
-        workSegments,
-        breakSegments,
+      let snapshot = editingLog?.calculationSnapshot ?? null;
+      let ruleSetId = editingLog?.ruleSetId ?? "";
+
+      if (ruleSet) {
+        const calculation = calculateDailyHours(
+          selectedDate,
+          workSegments,
+          breakSegments,
+          dayType,
+          targetHours,
+          ruleSet,
+          0
+        );
+        const payBreakdown = calculatePayBreakdown(
+          calculation,
+          paySettings,
+          ruleSet
+        );
+        snapshot = createCalculationSnapshot(
+          calculation,
+          payBreakdown,
+          ruleSet.id
+        );
+        ruleSetId = ruleSet.id;
+      }
+
+      const now = new Date();
+      const log: WorkLog = {
+        breaks: breakSegments,
+        calculationSnapshot: snapshot,
+        createdAt: editingLog?.createdAt ?? now,
+        date: dateStr,
         dayType,
-        targetHours,
-        ruleSet,
-        0
-      );
-      const payBreakdown = calculatePayBreakdown(
-        calculation,
-        paySettings,
-        ruleSet
-      );
-      snapshot = createCalculationSnapshot(
-        calculation,
-        payBreakdown,
-        ruleSet.id
-      );
+        id: editingLog?.id ?? generateId(),
+        note,
+        ruleSetId,
+        segments: workSegments,
+        updatedAt: now,
+      };
+
+      await saveLog(log);
+      navigate({ to: "/resumen" });
+    } finally {
+      setIsSaving(false);
     }
-
-    const log: WorkLog = {
-      breaks: breakSegments,
-      calculationSnapshot: snapshot,
-      createdAt: new Date(),
-      date: dateStr,
-      dayType,
-      id: generateId(),
-      note,
-      ruleSetId: ruleSet?.id ?? "",
-      segments: workSegments,
-      updatedAt: new Date(),
-    };
-
-    await saveLog(log);
-    setIsSaving(false);
-    navigate({ to: "/resumen" });
   };
 
   const dayName = format(selectedDate, "EEEE d 'de' MMMM", { locale: es });

@@ -83,14 +83,20 @@ export default function SettingsPage() {
 
   const handleSaveTargets = async () => {
     setIsSaving(true);
-    await saveSettings({ weeklyTargetHours: targets });
-    setIsSaving(false);
+    try {
+      await saveSettings({ weeklyTargetHours: targets });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSavePay = async () => {
     setIsSaving(true);
-    await saveSettings({ paySettings });
-    setIsSaving(false);
+    try {
+      await saveSettings({ paySettings });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDeleteLog = async () => {
@@ -98,9 +104,12 @@ export default function SettingsPage() {
       return;
     }
     setIsDeletingLog(true);
-    await deleteLog(logToDelete.id);
-    setLogToDelete(null);
-    setIsDeletingLog(false);
+    try {
+      await deleteLog(logToDelete.id);
+      setLogToDelete(null);
+    } finally {
+      setIsDeletingLog(false);
+    }
   };
 
   if (!settings) {

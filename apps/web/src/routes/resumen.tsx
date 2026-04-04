@@ -66,7 +66,8 @@ export default function ResumenPage() {
       weekLogs,
       settings.weeklyTargetHours,
       ruleSet,
-      paySettings
+      paySettings,
+      ruleSets
     );
   }, [
     settings,

@@ -45,6 +45,27 @@ const mergePaySettings = (
   ...updates,
 });
 
+const dedupeLogsByDate = (logs: WorkLog[]): WorkLog[] => {
+  const logsByDate = new Map<string, WorkLog>();
+
+  for (const log of logs) {
+    const current = logsByDate.get(log.date);
+
+    if (!current) {
+      logsByDate.set(log.date, log);
+      continue;
+    }
+
+    if (log.updatedAt.getTime() >= current.updatedAt.getTime()) {
+      logsByDate.set(log.date, log);
+    }
+  }
+
+  return [...logsByDate.values()].toSorted((a, b) =>
+    b.date.localeCompare(a.date)
+  );
+};
+
 const buildUserSettings = (
   existing: UserSettings | null,
   updates: Partial<UserSettings>,
@@ -101,7 +122,7 @@ export const useWorkLogs = () => {
   useEffect(() => {
     const load = async () => {
       const allLogs = await db.workLogs.orderBy("date").toArray();
-      setLogs(allLogs.toReversed());
+      setLogs(dedupeLogsByDate(allLogs));
       setLoading(false);
     };
 
@@ -109,22 +130,34 @@ export const useWorkLogs = () => {
   }, []);
 
   const saveLog = async (log: WorkLog) => {
-    await db.workLogs.put(log);
+    await db.transaction("rw", db.workLogs, async () => {
+      await db.workLogs.where("date").equals(log.date).delete();
+      await db.workLogs.put(log);
+    });
     setLogs((previousLogs) => {
-      const withoutCurrent = previousLogs.filter(
-        (entry) => entry.id !== log.id
+      const withoutCurrentDate = previousLogs.filter(
+        (entry) => entry.date !== log.date && entry.id !== log.id
       );
-      return [...withoutCurrent, log].toSorted((a, b) =>
-        b.date.localeCompare(a.date)
-      );
+      return dedupeLogsByDate([...withoutCurrentDate, log]);
     });
 
     return log;
   };
 
   const deleteLog = async (id: string) => {
-    await db.workLogs.delete(id);
-    setLogs((previousLogs) => previousLogs.filter((entry) => entry.id !== id));
+    const logToDelete = await db.workLogs.get(id);
+
+    if (!logToDelete) {
+      return;
+    }
+
+    await db.transaction("rw", db.workLogs, async () => {
+      await db.workLogs.where("date").equals(logToDelete.date).delete();
+    });
+
+    setLogs((previousLogs) =>
+      previousLogs.filter((entry) => entry.date !== logToDelete.date)
+    );
   };
 
   const getLogsForDateRange = (start: Date, end: Date) => {

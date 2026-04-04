@@ -6,18 +6,28 @@ export const formatDateKey = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
-export const parseDateKey = (dateKey: string): Date => {
-  const [yearPart, monthPart, dayPart] = dateKey.split("-");
+const DATE_KEY_PATTERN = /^\d{4}-\d{1,2}-\d{1,2}$/;
 
-  if (!yearPart || !monthPart || !dayPart) {
+export const parseDateKey = (dateKey: string): Date => {
+  if (!DATE_KEY_PATTERN.test(dateKey)) {
     return new Date(Number.NaN);
   }
 
+  const [yearPart, monthPart, dayPart] = dateKey.split("-");
   const year = Number(yearPart);
   const month = Number(monthPart) - 1;
   const day = Number(dayPart);
+  const parsedDate = new Date(year, month, day);
 
-  return new Date(year, month, day);
+  if (
+    parsedDate.getFullYear() !== year ||
+    parsedDate.getMonth() !== month ||
+    parsedDate.getDate() !== day
+  ) {
+    return new Date(Number.NaN);
+  }
+
+  return parsedDate;
 };
 
 export const isDateKeyWithinRange = (
