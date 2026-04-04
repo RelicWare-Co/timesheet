@@ -8,52 +8,140 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as IndexRouteImport } from "./routes/index";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResumenRouteImport } from './routes/resumen'
+import { Route as RegistrarRouteImport } from './routes/registrar'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as ConfiguracionIndexRouteImport } from './routes/configuracion/index'
+import { Route as ConfiguracionInicialRouteImport } from './routes/configuracion/inicial'
 
-const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+const ResumenRoute = ResumenRouteImport.update({
+  id: '/resumen',
+  path: '/resumen',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const RegistrarRoute = RegistrarRouteImport.update({
+  id: '/registrar',
+  path: '/registrar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracionIndexRoute = ConfiguracionIndexRouteImport.update({
+  id: '/configuracion/',
+  path: '/configuracion/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracionInicialRoute = ConfiguracionInicialRouteImport.update({
+  id: '/configuracion/inicial',
+  path: '/configuracion/inicial',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
+  '/': typeof IndexRoute
+  '/registrar': typeof RegistrarRoute
+  '/resumen': typeof ResumenRoute
+  '/configuracion/inicial': typeof ConfiguracionInicialRoute
+  '/configuracion/': typeof ConfiguracionIndexRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
+  '/': typeof IndexRoute
+  '/registrar': typeof RegistrarRoute
+  '/resumen': typeof ResumenRoute
+  '/configuracion/inicial': typeof ConfiguracionInicialRoute
+  '/configuracion': typeof ConfiguracionIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/registrar': typeof RegistrarRoute
+  '/resumen': typeof ResumenRoute
+  '/configuracion/inicial': typeof ConfiguracionInicialRoute
+  '/configuracion/': typeof ConfiguracionIndexRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/";
-  fileRoutesByTo: FileRoutesByTo;
-  to: "/";
-  id: "__root__" | "/";
-  fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/registrar'
+    | '/resumen'
+    | '/configuracion/inicial'
+    | '/configuracion/'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/registrar'
+    | '/resumen'
+    | '/configuracion/inicial'
+    | '/configuracion'
+  id:
+    | '__root__'
+    | '/'
+    | '/registrar'
+    | '/resumen'
+    | '/configuracion/inicial'
+    | '/configuracion/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
+  IndexRoute: typeof IndexRoute
+  RegistrarRoute: typeof RegistrarRoute
+  ResumenRoute: typeof ResumenRoute
+  ConfiguracionInicialRoute: typeof ConfiguracionInicialRoute
+  ConfiguracionIndexRoute: typeof ConfiguracionIndexRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+    '/resumen': {
+      id: '/resumen'
+      path: '/resumen'
+      fullPath: '/resumen'
+      preLoaderRoute: typeof ResumenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registrar': {
+      id: '/registrar'
+      path: '/registrar'
+      fullPath: '/registrar'
+      preLoaderRoute: typeof RegistrarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracion/': {
+      id: '/configuracion/'
+      path: '/configuracion'
+      fullPath: '/configuracion/'
+      preLoaderRoute: typeof ConfiguracionIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracion/inicial': {
+      id: '/configuracion/inicial'
+      path: '/configuracion/inicial'
+      fullPath: '/configuracion/inicial'
+      preLoaderRoute: typeof ConfiguracionInicialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-};
+  RegistrarRoute: RegistrarRoute,
+  ResumenRoute: ResumenRoute,
+  ConfiguracionInicialRoute: ConfiguracionInicialRoute,
+  ConfiguracionIndexRoute: ConfiguracionIndexRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()

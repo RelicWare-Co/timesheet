@@ -9,7 +9,10 @@
     "start": "vite",
     "check-types": "vite build && tsc --noEmit",
     "dev:bare": "vite dev",
-    "generate-pwa-assets": "pwa-assets-generator"
+    "generate-pwa-assets": "pwa-assets-generator",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -17,6 +20,7 @@
     "@tanstack/react-router": "^1.141.1",
     "@timesheet/env": "workspace:*",
     "@timesheet/ui": "workspace:*",
+    "date-fns": "^4.1.0",
     "dexie": "^4.4.2",
     "dexie-react-hooks": "^4.4.0",
     "dotenv": "catalog:",
@@ -37,10 +41,14 @@
     "@types/react-dom": "catalog:",
     "@vite-pwa/assets-generator": "^1.0.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-v8": "^4.1.2",
+    "@vitest/ui": "^4.1.2",
     "alchemy": "catalog:",
+    "jsdom": "^29.0.1",
     "postcss": "^8.5.3",
     "tailwindcss": "catalog:",
     "typescript": "^5",
-    "vite": "^6.2.2"
+    "vite": "^6.2.2",
+    "vitest": "^4.1.2"
   }
 }
