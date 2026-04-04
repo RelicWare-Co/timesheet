@@ -1,1 +1,10 @@
 @import "@timesheet/ui/globals.css";
+
+@layer utilities {
+  .ease-spring {
+    transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .animate-in-spring {
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+}

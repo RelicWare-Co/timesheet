@@ -348,34 +348,34 @@ export default function RegistrarPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-8">
-      <div className="mb-8 flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+    <div className="container mx-auto max-w-5xl px-4 py-8 pb-32">
+      <div className="mb-10 flex items-center gap-6 animate-in fade-in slide-in-from-top-4 duration-500 ease-spring">
         <Link to="/">
-          <Button variant="ghost" size="icon" className="rounded-full hover:bg-secondary transition-colors">
-            <ArrowLeft className="size-5" />
+          <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full hover:bg-secondary/60 transition-transform active:scale-95 ease-spring">
+            <ArrowLeft className="size-6" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Registrar Horas</h1>
-          <p className="text-sm font-medium text-muted-foreground capitalize mt-1">{dayName}</p>
+          <h1 className="text-4xl font-bold tracking-tight">Registrar Horas</h1>
+          <p className="text-base font-medium text-muted-foreground capitalize mt-1.5">{dayName}</p>
         </div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+      <div className="grid gap-8 lg:grid-cols-12 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-spring">
         <div className="lg:col-span-4 space-y-6">
-          <Card className="overflow-hidden border-border/50 bg-card/30 backdrop-blur-xl shadow-sm">
+          <Card className="overflow-hidden border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all duration-300">
             <CardContent className="p-0 flex justify-center w-full">
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={handleDateSelect}
-                className="w-full p-3 sm:p-4 [--cell-size:12vw] sm:[--cell-size:3rem] md:[--cell-size:2.75rem] mx-auto flex justify-center"
+                className="w-full p-4 sm:p-5 [--cell-size:11.5vw] sm:[--cell-size:3.2rem] md:[--cell-size:3rem] mx-auto flex justify-center"
               />
             </CardContent>
-            <div className="p-4 border-t border-border/40 bg-secondary/20">
+            <div className="p-4 border-t border-border/20 bg-secondary/10">
               <Button
                 variant="secondary"
-                className="w-full h-14 sm:h-12 text-base font-medium shadow-sm rounded-xl transition-transform active:scale-[0.98]"
+                className="w-full h-14 text-base font-medium rounded-2xl transition-transform active:scale-[0.98] ease-spring bg-background/50 hover:bg-background/80"
                 onClick={duplicatePreviousDay}
               >
                 <Copy className="mr-2 size-5" />
@@ -386,57 +386,61 @@ export default function RegistrarPage() {
         </div>
 
         <div className="lg:col-span-8 space-y-6">
-          <Card className="border-border/50 bg-card/30 backdrop-blur-xl shadow-sm transition-all hover:border-primary/20">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-xl flex items-center gap-2">
-                <CalendarDays className="size-5 text-primary" />
+          <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all duration-500 ease-spring hover:border-primary/20 hover:shadow-[0_8px_30px_rgba(var(--primary),0.08)]">
+            <CardHeader className="pb-4 px-6 pt-6">
+              <CardTitle className="text-xl flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                  <CalendarDays className="size-5" />
+                </div>
                 Tipo de Día
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6 pb-6">
               <ToggleGroup
                 type="single"
                 value={dayType}
                 onValueChange={(v) => v && setDayType(v as typeof dayType)}
-                className="justify-start gap-2 bg-secondary/20 p-1.5 rounded-xl flex w-full overflow-x-auto scrollbar-none"
+                className="justify-start gap-3 bg-secondary/20 p-2 rounded-2xl flex w-full overflow-x-auto scrollbar-none"
               >
-                <ToggleGroupItem value="ordinary" className="rounded-lg px-4 sm:flex-1 data-[state=on]:bg-background data-[state=on]:shadow-sm transition-all">
+                <ToggleGroupItem value="ordinary" className="rounded-xl h-12 text-sm font-medium px-5 sm:flex-1 data-[state=on]:bg-background data-[state=on]:shadow-md data-[state=on]:text-primary transition-all duration-300 ease-spring">
                   Ordinario
                 </ToggleGroupItem>
-                <ToggleGroupItem value="sunday" className="rounded-lg px-4 sm:flex-1 data-[state=on]:bg-background data-[state=on]:shadow-sm transition-all">
+                <ToggleGroupItem value="sunday" className="rounded-xl h-12 text-sm font-medium px-5 sm:flex-1 data-[state=on]:bg-background data-[state=on]:shadow-md data-[state=on]:text-primary transition-all duration-300 ease-spring">
                   Domingo
                 </ToggleGroupItem>
-                <ToggleGroupItem value="holiday" className="rounded-lg px-4 sm:flex-1 data-[state=on]:bg-background data-[state=on]:shadow-sm transition-all">
+                <ToggleGroupItem value="holiday" className="rounded-xl h-12 text-sm font-medium px-5 sm:flex-1 data-[state=on]:bg-background data-[state=on]:shadow-md data-[state=on]:text-primary transition-all duration-300 ease-spring">
                   Festivo
                 </ToggleGroupItem>
               </ToggleGroup>
               {targetHours > 0 && (
-                <p className="mt-3 text-sm text-muted-foreground flex items-center gap-1.5">
-                  <span className="inline-block size-1.5 rounded-full bg-primary/60"></span>
-                  Horas objetivo para este día: <span className="font-semibold text-foreground">{targetHours}h</span>
+                <p className="mt-4 text-sm text-muted-foreground flex items-center gap-2">
+                  <span className="inline-block size-2 rounded-full bg-primary/60 shadow-[0_0_8px_rgba(var(--primary),0.5)]"></span>
+                  Horas objetivo para este día: <span className="font-bold text-foreground bg-primary/10 px-2 py-0.5 rounded-md">{targetHours}h</span>
                 </p>
               )}
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 bg-card/30 backdrop-blur-xl shadow-sm transition-all hover:border-primary/20">
-            <CardHeader className="flex flex-row items-center justify-between pb-4">
-              <CardTitle className="text-xl flex items-center gap-2">
-                <Clock className="size-5 text-primary" />
+          <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all duration-500 ease-spring hover:border-primary/20 hover:shadow-[0_8px_30px_rgba(var(--primary),0.08)]">
+            <CardHeader className="flex flex-row items-center justify-between pb-4 px-6 pt-6">
+              <CardTitle className="text-xl flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                  <Clock className="size-5" />
+                </div>
                 Jornada Laboral
               </CardTitle>
-              <Button variant="secondary" size="sm" onClick={addSegment} className="rounded-lg shadow-sm">
-                <Plus className="mr-1 size-4" />
+              <Button variant="secondary" size="sm" onClick={addSegment} className="rounded-xl h-10 px-4 shadow-sm bg-background/60 hover:bg-background/90 transition-all ease-spring">
+                <Plus className="mr-1.5 size-4" />
                 Agregar
               </Button>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6 pb-6">
               <FieldGroup className="gap-4">
                 {segments.map((segment, index) => (
-                  <div key={segment.id} className="group flex flex-col sm:flex-row items-end gap-3 p-4 sm:p-3 rounded-2xl border border-transparent bg-secondary/10 transition-all hover:border-border hover:bg-secondary/20">
-                    <div className="flex w-full gap-3">
+                  <div key={segment.id} className="group flex flex-col sm:flex-row items-end gap-4 p-4 sm:p-4 rounded-2xl border border-border/20 bg-secondary/10 transition-all duration-300 ease-spring hover:border-border/40 hover:bg-secondary/20 shadow-sm">
+                    <div className="flex w-full gap-4">
                       <Field className="flex-1">
-                        <FieldLabel className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Inicio</FieldLabel>
+                        <FieldLabel className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-2 ml-1">Inicio</FieldLabel>
                         <FieldContent>
                           <Input
                             type="time"
@@ -448,12 +452,12 @@ export default function RegistrarPage() {
                                 e.target.value
                               )
                             }
-                            className="h-14 sm:h-10 text-base sm:text-sm bg-background shadow-sm border-border/50 focus-visible:ring-primary/20"
+                            className="h-14 text-base font-semibold bg-background shadow-sm border-border/30 focus-visible:ring-primary/30 rounded-xl px-4"
                           />
                         </FieldContent>
                       </Field>
                       <Field className="flex-1">
-                        <FieldLabel className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Fin</FieldLabel>
+                        <FieldLabel className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-2 ml-1">Fin</FieldLabel>
                         <FieldContent>
                           <Input
                             type="time"
@@ -461,7 +465,7 @@ export default function RegistrarPage() {
                             onChange={(e) =>
                               updateSegment(segment.id, "endTime", e.target.value)
                             }
-                            className="h-14 sm:h-10 text-base sm:text-sm bg-background shadow-sm border-border/50 focus-visible:ring-primary/20"
+                            className="h-14 text-base font-semibold bg-background shadow-sm border-border/30 focus-visible:ring-primary/30 rounded-xl px-4"
                           />
                         </FieldContent>
                       </Field>
@@ -471,10 +475,10 @@ export default function RegistrarPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => removeSegment(segment.id)}
-                        className="w-full sm:w-10 h-12 sm:h-10 mt-2 sm:mt-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
+                        className="w-full sm:w-14 h-14 mt-2 sm:mt-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors ease-spring"
                       >
-                        <Trash2 className="size-5 sm:size-4" />
-                        <span className="sm:hidden ml-2 font-medium">Eliminar segmento</span>
+                        <Trash2 className="size-5" />
+                        <span className="sm:hidden ml-2 font-medium">Eliminar</span>
                       </Button>
                     )}
                   </div>
@@ -483,31 +487,33 @@ export default function RegistrarPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 bg-card/30 backdrop-blur-xl shadow-sm transition-all hover:border-primary/20">
-            <CardHeader className="flex flex-row items-center justify-between pb-4">
-              <CardTitle className="text-xl flex items-center gap-2">
-                <Calculator className="size-5 text-muted-foreground" />
-                Descansos <span className="text-sm font-normal text-muted-foreground">(No remunerados)</span>
+          <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all duration-500 ease-spring hover:border-border/50 hover:shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between pb-4 px-6 pt-6">
+              <CardTitle className="text-xl flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-secondary text-muted-foreground">
+                  <Calculator className="size-5" />
+                </div>
+                Descansos <span className="text-sm font-normal text-muted-foreground ml-1 bg-secondary/50 px-2 py-0.5 rounded-md">(No remunerados)</span>
               </CardTitle>
-              <Button variant="outline" size="sm" onClick={addBreak} className="rounded-lg">
-                <Plus className="mr-1 size-4" />
+              <Button variant="outline" size="sm" onClick={addBreak} className="rounded-xl h-10 px-4 bg-background/30 transition-all ease-spring">
+                <Plus className="mr-1.5 size-4" />
                 Agregar
               </Button>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6 pb-6">
               {breaks.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-border/60 p-6 text-center">
-                  <p className="text-sm text-muted-foreground">
+                <div className="rounded-2xl border border-dashed border-border/40 p-8 text-center bg-secondary/5">
+                  <p className="text-[15px] font-medium text-muted-foreground">
                     No has registrado descansos
                   </p>
                 </div>
               ) : (
                 <FieldGroup className="gap-4">
                   {breaks.map((breakSegment) => (
-                    <div key={breakSegment.id} className="group flex flex-col sm:flex-row items-end gap-3 p-4 sm:p-3 rounded-2xl border border-transparent bg-secondary/10 transition-all hover:border-border hover:bg-secondary/20">
-                      <div className="flex w-full gap-3">
+                    <div key={breakSegment.id} className="group flex flex-col sm:flex-row items-end gap-4 p-4 sm:p-4 rounded-2xl border border-border/20 bg-secondary/10 transition-all duration-300 ease-spring hover:border-border/40 hover:bg-secondary/20 shadow-sm">
+                      <div className="flex w-full gap-4">
                         <Field className="flex-1">
-                          <FieldLabel className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Inicio</FieldLabel>
+                          <FieldLabel className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-2 ml-1">Inicio</FieldLabel>
                           <FieldContent>
                             <Input
                               type="time"
@@ -519,12 +525,12 @@ export default function RegistrarPage() {
                                   e.target.value
                                 )
                               }
-                              className="h-14 sm:h-10 text-base sm:text-sm bg-background shadow-sm border-border/50 focus-visible:ring-primary/20"
+                              className="h-14 text-base font-semibold bg-background shadow-sm border-border/30 focus-visible:ring-primary/30 rounded-xl px-4"
                             />
                           </FieldContent>
                         </Field>
                         <Field className="flex-1">
-                          <FieldLabel className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Fin</FieldLabel>
+                          <FieldLabel className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-2 ml-1">Fin</FieldLabel>
                           <FieldContent>
                             <Input
                               type="time"
@@ -536,7 +542,7 @@ export default function RegistrarPage() {
                                   e.target.value
                                 )
                               }
-                              className="h-14 sm:h-10 text-base sm:text-sm bg-background shadow-sm border-border/50 focus-visible:ring-primary/20"
+                              className="h-14 text-base font-semibold bg-background shadow-sm border-border/30 focus-visible:ring-primary/30 rounded-xl px-4"
                             />
                           </FieldContent>
                         </Field>
@@ -545,10 +551,10 @@ export default function RegistrarPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => removeBreak(breakSegment.id)}
-                        className="w-full sm:w-10 h-12 sm:h-10 mt-2 sm:mt-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
+                        className="w-full sm:w-14 h-14 mt-2 sm:mt-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors ease-spring"
                       >
-                        <Trash2 className="size-5 sm:size-4" />
-                        <span className="sm:hidden ml-2 font-medium">Eliminar descanso</span>
+                        <Trash2 className="size-5" />
+                        <span className="sm:hidden ml-2 font-medium">Eliminar</span>
                       </Button>
                     </div>
                   ))}
@@ -557,47 +563,49 @@ export default function RegistrarPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 bg-card/30 backdrop-blur-xl shadow-sm transition-all hover:border-primary/20">
-            <CardHeader className="pb-4">
+          <Card className="border-border/30 bg-background/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl transition-all duration-500 ease-spring hover:border-border/50 hover:shadow-lg">
+            <CardHeader className="pb-4 px-6 pt-6">
               <CardTitle className="text-xl">Notas</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6 pb-6">
               <Input
                 placeholder="Escribe una nota opcional sobre este día..."
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="bg-secondary/10 border-border/50 focus-visible:ring-primary/20 rounded-xl"
+                className="h-14 text-base bg-secondary/10 border-border/30 focus-visible:ring-primary/30 rounded-xl px-5 shadow-inner"
               />
             </CardContent>
           </Card>
 
           {calcPreview && (
-            <Card className="border-primary bg-primary/5 shadow-md animate-in fade-in slide-in-from-top-4 duration-500 overflow-hidden">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent pointer-events-none" />
-              <CardHeader className="pb-2">
+            <Card className="border-primary/20 bg-primary/5 shadow-xl shadow-primary/5 animate-in fade-in slide-in-from-top-8 duration-700 ease-spring overflow-hidden rounded-3xl">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/15 via-transparent to-transparent pointer-events-none" />
+              <CardHeader className="pb-3 px-6 pt-6 relative">
                 <CardTitle className="text-lg text-primary flex items-center gap-2">
-                  <Calculator className="size-5" />
+                  <div className="p-1.5 rounded-lg bg-primary/20">
+                    <Calculator className="size-5" />
+                  </div>
                   Estimación de la Jornada
                 </CardTitle>
               </CardHeader>
-              <CardContent className="grid gap-4 sm:grid-cols-3">
-                <div className="rounded-xl bg-background/50 p-4 border border-primary/10 backdrop-blur-sm">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+              <CardContent className="grid gap-4 sm:grid-cols-3 px-6 pb-6 relative">
+                <div className="rounded-2xl bg-background/60 p-5 border border-primary/10 backdrop-blur-md shadow-sm transition-transform hover:scale-105 duration-300 ease-spring">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
                     Horas Trabajadas
                   </p>
-                  <p className="text-2xl font-bold text-foreground">
+                  <p className="text-3xl font-bold text-foreground">
                     {formatMinutesAsHours(calcPreview.workedMinutes)}
                   </p>
                 </div>
-                <div className="rounded-xl bg-background/50 p-4 border border-primary/10 backdrop-blur-sm">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Horas Extra</p>
-                  <p className={cn("text-2xl font-bold", calcPreview.overtimeMinutes > 0 ? "text-amber-500" : "text-foreground")}>
+                <div className="rounded-2xl bg-background/60 p-5 border border-primary/10 backdrop-blur-md shadow-sm transition-transform hover:scale-105 duration-300 ease-spring">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Horas Extra</p>
+                  <p className={cn("text-3xl font-bold", calcPreview.overtimeMinutes > 0 ? "text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.4)]" : "text-foreground")}>
                     {formatMinutesAsHours(calcPreview.overtimeMinutes)}
                   </p>
                 </div>
-                <div className="rounded-xl bg-primary/10 p-4 border border-primary/20 backdrop-blur-sm">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-primary/80 mb-1">Pago Estimado</p>
-                  <p className="text-2xl font-bold text-primary">
+                <div className="rounded-2xl bg-primary/15 p-5 border border-primary/20 backdrop-blur-md shadow-sm transition-transform hover:scale-105 duration-300 ease-spring">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80 mb-2">Pago Estimado</p>
+                  <p className="text-3xl font-bold text-primary drop-shadow-[0_0_12px_rgba(var(--primary),0.3)]">
                     {paySettings.currency === "COP"
                       ? `$${calcPreview.estimatedPay.toLocaleString()}`
                       : `${paySettings.currency} ${calcPreview.estimatedPay.toFixed(2)}`}
@@ -607,21 +615,21 @@ export default function RegistrarPage() {
             </Card>
           )}
 
-          <div className="hidden sm:flex flex-col sm:flex-row gap-4 pt-4">
+          <div className="hidden sm:flex flex-col sm:flex-row gap-5 pt-6">
             <Button 
               onClick={calculatePreview} 
               variant="outline" 
               size="lg" 
-              className="flex-1 h-14 text-base font-semibold rounded-xl shadow-sm hover:bg-secondary/50 transition-colors"
+              className="flex-1 h-16 text-base font-bold rounded-2xl shadow-sm hover:bg-secondary/40 hover:text-foreground transition-all duration-300 ease-spring active:scale-95 bg-background/50 backdrop-blur-sm"
             >
               <Calculator className="mr-2 size-5 text-muted-foreground" />
-              Calcular Vista Previa
+              Vista Previa
             </Button>
             <Button 
               onClick={handleSave} 
               disabled={isSaving} 
               size="lg" 
-              className="flex-1 h-14 text-base font-semibold rounded-xl shadow-md transition-all active:scale-[0.98]"
+              className="flex-1 h-16 text-base font-bold rounded-2xl shadow-[0_8px_20px_rgba(var(--primary),0.25)] transition-all duration-300 ease-spring active:scale-95"
             >
               <Save className="mr-2 size-5" />
               {isSaving ? "Guardando..." : "Guardar Registro"}
@@ -630,26 +638,28 @@ export default function RegistrarPage() {
         </div>
       </div>
 
-      {/* Mobile Sticky Bottom Actions */}
-      <div className="sm:hidden fixed bottom-[4.5rem] left-0 right-0 z-40 p-3 bg-background/80 backdrop-blur-xl border-t border-border/40 flex items-center gap-3">
-        <Button 
-          onClick={calculatePreview} 
-          variant="secondary" 
-          size="icon" 
-          className="h-12 w-12 shrink-0 rounded-2xl shadow-sm border border-border/50 transition-transform active:scale-[0.96]"
-        >
-          <Calculator className="size-5 text-muted-foreground" />
-          <span className="sr-only">Calcular</span>
-        </Button>
-        <Button 
-          onClick={handleSave} 
-          disabled={isSaving} 
-          size="lg" 
-          className="flex-1 h-12 text-[15px] font-bold rounded-2xl shadow-md transition-transform active:scale-[0.98]"
-        >
-          <Save className="mr-2 size-5" />
-          {isSaving ? "Guardando..." : "Guardar Registro"}
-        </Button>
+      {/* High-end Mobile Sticky Bottom Actions as a floating pill */}
+      <div className="sm:hidden fixed bottom-28 left-0 right-0 z-40 px-4 pointer-events-none">
+        <div className="mx-auto max-w-[400px] p-2 bg-background/80 backdrop-blur-3xl border border-border/30 rounded-[2.5rem] shadow-[0_16px_40px_rgba(0,0,0,0.2)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.6)] flex items-center gap-2 pointer-events-auto">
+          <Button 
+            onClick={calculatePreview} 
+            variant="secondary" 
+            size="icon" 
+            className="h-14 w-14 shrink-0 rounded-full shadow-sm bg-secondary/50 hover:bg-secondary transition-transform duration-300 active:scale-90 ease-spring"
+          >
+            <Calculator className="size-6 text-muted-foreground" />
+            <span className="sr-only">Calcular</span>
+          </Button>
+          <Button 
+            onClick={handleSave} 
+            disabled={isSaving} 
+            size="lg" 
+            className="flex-1 h-14 text-base font-bold rounded-full shadow-lg transition-transform duration-300 active:scale-95 ease-spring"
+          >
+            <Save className="mr-2 size-5" />
+            {isSaving ? "Guardando..." : "Guardar Registro"}
+          </Button>
+        </div>
       </div>
     </div>
   );

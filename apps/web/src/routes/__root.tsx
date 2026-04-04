@@ -23,12 +23,13 @@ const RootComponent = () => (
       storageKey="vite-ui-theme"
     >
       <div className="relative flex min-h-svh flex-col bg-background font-sans antialiased selection:bg-primary/20 selection:text-primary">
-        {/* Subtle background glow effect */}
-        <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.1),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))]" />
+        {/* Elegant blur background */}
+        <div className="fixed inset-0 -z-10 bg-background" />
+        <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_100%_100%_at_50%_-20%,rgba(120,119,198,0.08),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_100%_100%_at_50%_-20%,rgba(120,119,198,0.12),rgba(255,255,255,0))]" />
         
         <Header />
         
-        <main className="flex-1 pb-36 md:pb-8">
+        <main className="flex-1 pb-28 md:pb-8 pt-4 md:pt-8 w-full">
           <Outlet />
         </main>
       </div>
