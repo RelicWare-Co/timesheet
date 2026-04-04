@@ -12,15 +12,15 @@ export default defineConfig({
     tanstackRouter({}),
     react(),
     VitePWA({
-      registerType: "autoUpdate",
+      devOptions: { enabled: true },
       manifest: {
+        description: "timesheet - PWA Application",
         name: "timesheet",
         short_name: "timesheet",
-        description: "timesheet - PWA Application",
         theme_color: "#0c0c0c",
       },
-      pwaAssets: { disabled: false, config: true },
-      devOptions: { enabled: true },
+      pwaAssets: { config: true, disabled: false },
+      registerType: "autoUpdate",
     }),
   ],
   resolve: {

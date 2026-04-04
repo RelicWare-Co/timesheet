@@ -8,11 +8,11 @@ config({ path: "../../apps/web/.env" });
 const app = await alchemy("timesheet");
 
 export const web = await Vite("web", {
-  cwd: "../../apps/web",
   assets: "dist",
   bindings: {
     VITE_SERVER_URL: alchemy.env.VITE_SERVER_URL!,
   },
+  cwd: "../../apps/web",
 });
 
 console.log(`Web    -> ${web.url}`);

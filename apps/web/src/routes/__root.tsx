@@ -1,4 +1,8 @@
-import { HeadContent, Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import {
+  HeadContent,
+  Outlet,
+  createRootRouteWithContext,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Toaster } from "@timesheet/ui/components/sonner";
 
@@ -12,19 +16,19 @@ export interface RouterAppContext {}
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   component: RootComponent,
   head: () => ({
+    links: [
+      {
+        href: "/favicon.ico",
+        rel: "icon",
+      },
+    ],
     meta: [
       {
         title: "timesheet",
       },
       {
-        name: "description",
         content: "timesheet is a web application",
-      },
-    ],
-    links: [
-      {
-        rel: "icon",
-        href: "/favicon.ico",
+        name: "description",
       },
     ],
   }),

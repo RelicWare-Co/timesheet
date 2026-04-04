@@ -20,4 +20,8 @@
   "tabWidth": 2,
   "trailingComma": "es5",
   "useTabs": false,
+  "ignorePatterns": [
+    "packages/ui/src/components/**",
+    "apps/web/src/routeTree.gen.ts",
+  ],
 }
