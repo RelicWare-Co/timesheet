@@ -22,11 +22,17 @@ const RootComponent = () => (
       disableTransitionOnChange
       storageKey="vite-ui-theme"
     >
-      <div className="grid h-svh grid-rows-[auto_1fr]">
+      <div className="relative flex min-h-svh flex-col bg-background font-sans antialiased selection:bg-primary/20 selection:text-primary">
+        {/* Subtle background glow effect */}
+        <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.1),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))]" />
+        
         <Header />
-        <Outlet />
+        
+        <main className="flex-1 pb-36 md:pb-8">
+          <Outlet />
+        </main>
       </div>
-      <Toaster richColors />
+      <Toaster richColors closeButton position="top-center" theme="system" />
     </ThemeProvider>
     <TanStackRouterDevtools position="bottom-left" />
   </>
@@ -43,11 +49,21 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
     ],
     meta: [
       {
-        title: "timesheet",
+        title: "Timesheet",
       },
       {
-        content: "timesheet is a web application",
+        content: "Gestiona tus horas de trabajo de forma elegante",
         name: "description",
+      },
+      {
+        name: "theme-color",
+        content: "#000000",
+        media: "(prefers-color-scheme: dark)",
+      },
+      {
+        name: "theme-color",
+        content: "#ffffff",
+        media: "(prefers-color-scheme: light)",
       },
     ],
   }),

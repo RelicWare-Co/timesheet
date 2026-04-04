@@ -16,17 +16,12 @@ import {
   FieldDescription,
 } from "@timesheet/ui/components/field";
 import { Input } from "@timesheet/ui/components/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@timesheet/ui/components/select";
+import { ToggleGroup, ToggleGroupItem } from "@timesheet/ui/components/toggle-group";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Clock, Copy, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Clock, Copy, Plus, Save, Trash2, CalendarDays, Calculator } from "lucide-react";
 import { useState } from "react";
+import { cn } from "@timesheet/ui/lib/utils";
 
 import {
   useHolidays,
@@ -333,8 +328,8 @@ export default function RegistrarPage() {
 
   if (!settings) {
     return (
-      <div className="container mx-auto max-w-3xl px-4 py-8">
-        <Card>
+      <div className="container mx-auto max-w-3xl px-4 py-8 animate-in fade-in duration-500">
+        <Card className="border-border/50 bg-card/50 backdrop-blur-xl">
           <CardHeader>
             <CardTitle>Primero necesitas configurar tu perfil</CardTitle>
             <CardDescription>
@@ -353,121 +348,133 @@ export default function RegistrarPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-8">
-      <div className="mb-6 flex items-center gap-4">
+    <div className="container mx-auto max-w-5xl px-4 py-8">
+      <div className="mb-8 flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
         <Link to="/">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="rounded-full hover:bg-secondary transition-colors">
             <ArrowLeft className="size-5" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Registrar Horas</h1>
-          <p className="text-sm text-muted-foreground">{dayName}</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">Registrar Horas</h1>
+          <p className="text-sm font-medium text-muted-foreground capitalize mt-1">{dayName}</p>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="md:col-span-1">
-          <Card size="sm">
-            <CardContent className="p-2">
+      <div className="grid gap-8 lg:grid-cols-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <div className="lg:col-span-4 space-y-6">
+          <Card className="overflow-hidden border-border/50 bg-card/30 backdrop-blur-xl shadow-sm">
+            <CardContent className="p-0 flex justify-center w-full">
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={handleDateSelect}
-                className="rounded-md border-0"
+                className="w-full p-3 sm:p-4 [--cell-size:12vw] sm:[--cell-size:3rem] md:[--cell-size:2.75rem] mx-auto flex justify-center"
               />
             </CardContent>
+            <div className="p-4 border-t border-border/40 bg-secondary/20">
+              <Button
+                variant="secondary"
+                className="w-full h-14 sm:h-12 text-base font-medium shadow-sm rounded-xl transition-transform active:scale-[0.98]"
+                onClick={duplicatePreviousDay}
+              >
+                <Copy className="mr-2 size-5" />
+                Copiar del día anterior
+              </Button>
+            </div>
           </Card>
-
-          <div className="mt-4 space-y-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={duplicatePreviousDay}
-            >
-              <Copy className="mr-2 size-4" />
-              Copiar del día anterior
-            </Button>
-          </div>
         </div>
 
-        <div className="md:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Tipo de Día</CardTitle>
+        <div className="lg:col-span-8 space-y-6">
+          <Card className="border-border/50 bg-card/30 backdrop-blur-xl shadow-sm transition-all hover:border-primary/20">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl flex items-center gap-2">
+                <CalendarDays className="size-5 text-primary" />
+                Tipo de Día
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <Select
+              <ToggleGroup
+                type="single"
                 value={dayType}
-                onValueChange={(v) => setDayType(v as typeof dayType)}
+                onValueChange={(v) => v && setDayType(v as typeof dayType)}
+                className="justify-start gap-2 bg-secondary/20 p-1.5 rounded-xl flex w-full overflow-x-auto scrollbar-none"
               >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ordinary">
-                    Ordinario (Lunes a Sábado)
-                  </SelectItem>
-                  <SelectItem value="sunday">Domingo</SelectItem>
-                  <SelectItem value="holiday">Festivo</SelectItem>
-                </SelectContent>
-              </Select>
+                <ToggleGroupItem value="ordinary" className="rounded-lg px-4 sm:flex-1 data-[state=on]:bg-background data-[state=on]:shadow-sm transition-all">
+                  Ordinario
+                </ToggleGroupItem>
+                <ToggleGroupItem value="sunday" className="rounded-lg px-4 sm:flex-1 data-[state=on]:bg-background data-[state=on]:shadow-sm transition-all">
+                  Domingo
+                </ToggleGroupItem>
+                <ToggleGroupItem value="holiday" className="rounded-lg px-4 sm:flex-1 data-[state=on]:bg-background data-[state=on]:shadow-sm transition-all">
+                  Festivo
+                </ToggleGroupItem>
+              </ToggleGroup>
               {targetHours > 0 && (
-                <FieldDescription className="mt-2">
-                  Horas objetivo para este día: {targetHours}h
-                </FieldDescription>
+                <p className="mt-3 text-sm text-muted-foreground flex items-center gap-1.5">
+                  <span className="inline-block size-1.5 rounded-full bg-primary/60"></span>
+                  Horas objetivo para este día: <span className="font-semibold text-foreground">{targetHours}h</span>
+                </p>
               )}
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Segmentos de Trabajo</CardTitle>
-              <Button variant="outline" size="sm" onClick={addSegment}>
+          <Card className="border-border/50 bg-card/30 backdrop-blur-xl shadow-sm transition-all hover:border-primary/20">
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
+              <CardTitle className="text-xl flex items-center gap-2">
+                <Clock className="size-5 text-primary" />
+                Jornada Laboral
+              </CardTitle>
+              <Button variant="secondary" size="sm" onClick={addSegment} className="rounded-lg shadow-sm">
                 <Plus className="mr-1 size-4" />
                 Agregar
               </Button>
             </CardHeader>
             <CardContent>
-              <FieldGroup>
-                {segments.map((segment) => (
-                  <div key={segment.id} className="flex items-end gap-2">
-                    <Field className="flex-1">
-                      <FieldLabel>Inicio</FieldLabel>
-                      <FieldContent>
-                        <Input
-                          type="time"
-                          value={segment.startTime}
-                          onChange={(e) =>
-                            updateSegment(
-                              segment.id,
-                              "startTime",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </FieldContent>
-                    </Field>
-                    <Field className="flex-1">
-                      <FieldLabel>Fin</FieldLabel>
-                      <FieldContent>
-                        <Input
-                          type="time"
-                          value={segment.endTime}
-                          onChange={(e) =>
-                            updateSegment(segment.id, "endTime", e.target.value)
-                          }
-                        />
-                      </FieldContent>
-                    </Field>
+              <FieldGroup className="gap-4">
+                {segments.map((segment, index) => (
+                  <div key={segment.id} className="group flex flex-col sm:flex-row items-end gap-3 p-4 sm:p-3 rounded-2xl border border-transparent bg-secondary/10 transition-all hover:border-border hover:bg-secondary/20">
+                    <div className="flex w-full gap-3">
+                      <Field className="flex-1">
+                        <FieldLabel className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Inicio</FieldLabel>
+                        <FieldContent>
+                          <Input
+                            type="time"
+                            value={segment.startTime}
+                            onChange={(e) =>
+                              updateSegment(
+                                segment.id,
+                                "startTime",
+                                e.target.value
+                              )
+                            }
+                            className="h-14 sm:h-10 text-base sm:text-sm bg-background shadow-sm border-border/50 focus-visible:ring-primary/20"
+                          />
+                        </FieldContent>
+                      </Field>
+                      <Field className="flex-1">
+                        <FieldLabel className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Fin</FieldLabel>
+                        <FieldContent>
+                          <Input
+                            type="time"
+                            value={segment.endTime}
+                            onChange={(e) =>
+                              updateSegment(segment.id, "endTime", e.target.value)
+                            }
+                            className="h-14 sm:h-10 text-base sm:text-sm bg-background shadow-sm border-border/50 focus-visible:ring-primary/20"
+                          />
+                        </FieldContent>
+                      </Field>
+                    </div>
                     {segments.length > 1 && (
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => removeSegment(segment.id)}
+                        className="w-full sm:w-10 h-12 sm:h-10 mt-2 sm:mt-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
                       >
-                        <Trash2 className="size-4" />
+                        <Trash2 className="size-5 sm:size-4" />
+                        <span className="sm:hidden ml-2 font-medium">Eliminar segmento</span>
                       </Button>
                     )}
                   </div>
@@ -476,61 +483,72 @@ export default function RegistrarPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Descansos (no remunerados)</CardTitle>
-              <Button variant="outline" size="sm" onClick={addBreak}>
+          <Card className="border-border/50 bg-card/30 backdrop-blur-xl shadow-sm transition-all hover:border-primary/20">
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
+              <CardTitle className="text-xl flex items-center gap-2">
+                <Calculator className="size-5 text-muted-foreground" />
+                Descansos <span className="text-sm font-normal text-muted-foreground">(No remunerados)</span>
+              </CardTitle>
+              <Button variant="outline" size="sm" onClick={addBreak} className="rounded-lg">
                 <Plus className="mr-1 size-4" />
                 Agregar
               </Button>
             </CardHeader>
             <CardContent>
               {breaks.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Sin descansos registrados
-                </p>
+                <div className="rounded-xl border border-dashed border-border/60 p-6 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    No has registrado descansos
+                  </p>
+                </div>
               ) : (
-                <FieldGroup>
+                <FieldGroup className="gap-4">
                   {breaks.map((breakSegment) => (
-                    <div key={breakSegment.id} className="flex items-end gap-2">
-                      <Field className="flex-1">
-                        <FieldLabel>Inicio</FieldLabel>
-                        <FieldContent>
-                          <Input
-                            type="time"
-                            value={breakSegment.startTime}
-                            onChange={(e) =>
-                              updateBreak(
-                                breakSegment.id,
-                                "startTime",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </FieldContent>
-                      </Field>
-                      <Field className="flex-1">
-                        <FieldLabel>Fin</FieldLabel>
-                        <FieldContent>
-                          <Input
-                            type="time"
-                            value={breakSegment.endTime}
-                            onChange={(e) =>
-                              updateBreak(
-                                breakSegment.id,
-                                "endTime",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </FieldContent>
-                      </Field>
+                    <div key={breakSegment.id} className="group flex flex-col sm:flex-row items-end gap-3 p-4 sm:p-3 rounded-2xl border border-transparent bg-secondary/10 transition-all hover:border-border hover:bg-secondary/20">
+                      <div className="flex w-full gap-3">
+                        <Field className="flex-1">
+                          <FieldLabel className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Inicio</FieldLabel>
+                          <FieldContent>
+                            <Input
+                              type="time"
+                              value={breakSegment.startTime}
+                              onChange={(e) =>
+                                updateBreak(
+                                  breakSegment.id,
+                                  "startTime",
+                                  e.target.value
+                                )
+                              }
+                              className="h-14 sm:h-10 text-base sm:text-sm bg-background shadow-sm border-border/50 focus-visible:ring-primary/20"
+                            />
+                          </FieldContent>
+                        </Field>
+                        <Field className="flex-1">
+                          <FieldLabel className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Fin</FieldLabel>
+                          <FieldContent>
+                            <Input
+                              type="time"
+                              value={breakSegment.endTime}
+                              onChange={(e) =>
+                                updateBreak(
+                                  breakSegment.id,
+                                  "endTime",
+                                  e.target.value
+                                )
+                              }
+                              className="h-14 sm:h-10 text-base sm:text-sm bg-background shadow-sm border-border/50 focus-visible:ring-primary/20"
+                            />
+                          </FieldContent>
+                        </Field>
+                      </div>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => removeBreak(breakSegment.id)}
+                        className="w-full sm:w-10 h-12 sm:h-10 mt-2 sm:mt-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
                       >
-                        <Trash2 className="size-4" />
+                        <Trash2 className="size-5 sm:size-4" />
+                        <span className="sm:hidden ml-2 font-medium">Eliminar descanso</span>
                       </Button>
                     </div>
                   ))}
@@ -539,55 +557,47 @@ export default function RegistrarPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Notas</CardTitle>
+          <Card className="border-border/50 bg-card/30 backdrop-blur-xl shadow-sm transition-all hover:border-primary/20">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl">Notas</CardTitle>
             </CardHeader>
             <CardContent>
               <Input
-                placeholder="Agregar nota opcional..."
+                placeholder="Escribe una nota opcional sobre este día..."
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
+                className="bg-secondary/10 border-border/50 focus-visible:ring-primary/20 rounded-xl"
               />
             </CardContent>
           </Card>
 
-          <div className="flex gap-3">
-            <Button onClick={calculatePreview} variant="outline">
-              <Clock className="mr-2 size-4" />
-              Vista Previa
-            </Button>
-            <Button onClick={handleSave} disabled={isSaving}>
-              <Save className="mr-2 size-4" />
-              {isSaving ? "Guardando..." : "Guardar"}
-            </Button>
-          </div>
-
           {calcPreview && (
-            <Card className="border-primary/50">
-              <CardHeader>
-                <CardTitle className="text-primary">
-                  Vista Previa del Cálculo
+            <Card className="border-primary bg-primary/5 shadow-md animate-in fade-in slide-in-from-top-4 duration-500 overflow-hidden">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent pointer-events-none" />
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg text-primary flex items-center gap-2">
+                  <Calculator className="size-5" />
+                  Estimación de la Jornada
                 </CardTitle>
               </CardHeader>
-              <CardContent className="grid gap-2 sm:grid-cols-3">
-                <div>
-                  <p className="text-sm text-muted-foreground">
+              <CardContent className="grid gap-4 sm:grid-cols-3">
+                <div className="rounded-xl bg-background/50 p-4 border border-primary/10 backdrop-blur-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
                     Horas Trabajadas
                   </p>
-                  <p className="text-lg font-semibold">
+                  <p className="text-2xl font-bold text-foreground">
                     {formatMinutesAsHours(calcPreview.workedMinutes)}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Horas Extra</p>
-                  <p className="text-lg font-semibold">
+                <div className="rounded-xl bg-background/50 p-4 border border-primary/10 backdrop-blur-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Horas Extra</p>
+                  <p className={cn("text-2xl font-bold", calcPreview.overtimeMinutes > 0 ? "text-amber-500" : "text-foreground")}>
                     {formatMinutesAsHours(calcPreview.overtimeMinutes)}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Pago Estimado</p>
-                  <p className="text-lg font-semibold">
+                <div className="rounded-xl bg-primary/10 p-4 border border-primary/20 backdrop-blur-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary/80 mb-1">Pago Estimado</p>
+                  <p className="text-2xl font-bold text-primary">
                     {paySettings.currency === "COP"
                       ? `$${calcPreview.estimatedPay.toLocaleString()}`
                       : `${paySettings.currency} ${calcPreview.estimatedPay.toFixed(2)}`}
@@ -596,7 +606,50 @@ export default function RegistrarPage() {
               </CardContent>
             </Card>
           )}
+
+          <div className="hidden sm:flex flex-col sm:flex-row gap-4 pt-4">
+            <Button 
+              onClick={calculatePreview} 
+              variant="outline" 
+              size="lg" 
+              className="flex-1 h-14 text-base font-semibold rounded-xl shadow-sm hover:bg-secondary/50 transition-colors"
+            >
+              <Calculator className="mr-2 size-5 text-muted-foreground" />
+              Calcular Vista Previa
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              disabled={isSaving} 
+              size="lg" 
+              className="flex-1 h-14 text-base font-semibold rounded-xl shadow-md transition-all active:scale-[0.98]"
+            >
+              <Save className="mr-2 size-5" />
+              {isSaving ? "Guardando..." : "Guardar Registro"}
+            </Button>
+          </div>
         </div>
+      </div>
+
+      {/* Mobile Sticky Bottom Actions */}
+      <div className="sm:hidden fixed bottom-[4.5rem] left-0 right-0 z-40 p-3 bg-background/80 backdrop-blur-xl border-t border-border/40 flex items-center gap-3">
+        <Button 
+          onClick={calculatePreview} 
+          variant="secondary" 
+          size="icon" 
+          className="h-12 w-12 shrink-0 rounded-2xl shadow-sm border border-border/50 transition-transform active:scale-[0.96]"
+        >
+          <Calculator className="size-5 text-muted-foreground" />
+          <span className="sr-only">Calcular</span>
+        </Button>
+        <Button 
+          onClick={handleSave} 
+          disabled={isSaving} 
+          size="lg" 
+          className="flex-1 h-12 text-[15px] font-bold rounded-2xl shadow-md transition-transform active:scale-[0.98]"
+        >
+          <Save className="mr-2 size-5" />
+          {isSaving ? "Guardando..." : "Guardar Registro"}
+        </Button>
       </div>
     </div>
   );
