@@ -6,11 +6,21 @@ import {
   DropdownMenuTrigger,
 } from "@timesheet/ui/components/dropdown-menu";
 import { Moon, Sun } from "lucide-react";
+import * as React from "react";
 
 import { useTheme } from "@/components/theme-provider";
 
-export function ModeToggle() {
+export const ModeToggle = () => {
   const { setTheme } = useTheme();
+  const handleLightTheme = React.useCallback(() => {
+    setTheme("light");
+  }, [setTheme]);
+  const handleDarkTheme = React.useCallback(() => {
+    setTheme("dark");
+  }, [setTheme]);
+  const handleSystemTheme = React.useCallback(() => {
+    setTheme("system");
+  }, [setTheme]);
 
   return (
     <DropdownMenu>
@@ -20,16 +30,10 @@ export function ModeToggle() {
         <span className="sr-only">Toggle theme</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          System
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLightTheme}>Light</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleDarkTheme}>Dark</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleSystemTheme}>System</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};

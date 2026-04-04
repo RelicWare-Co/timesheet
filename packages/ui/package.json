@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@timesheet/config": "workspace:*",
+    "@types/node": "^22.13.14",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "tailwindcss": "catalog:",

@@ -11,7 +11,26 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 import "../index.css";
 
-export interface RouterAppContext {}
+export type RouterAppContext = Record<string, never>;
+
+const RootComponent = () => (
+  <>
+    <HeadContent />
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      disableTransitionOnChange
+      storageKey="vite-ui-theme"
+    >
+      <div className="grid h-svh grid-rows-[auto_1fr]">
+        <Header />
+        <Outlet />
+      </div>
+      <Toaster richColors />
+    </ThemeProvider>
+    <TanStackRouterDevtools position="bottom-left" />
+  </>
+);
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   component: RootComponent,
@@ -33,24 +52,3 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
     ],
   }),
 });
-
-function RootComponent() {
-  return (
-    <>
-      <HeadContent />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        disableTransitionOnChange
-        storageKey="vite-ui-theme"
-      >
-        <div className="grid grid-rows-[auto_1fr] h-svh">
-          <Header />
-          <Outlet />
-        </div>
-        <Toaster richColors />
-      </ThemeProvider>
-      <TanStackRouterDevtools position="bottom-left" />
-    </>
-  );
-}
