@@ -1,23 +1,35 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@timesheet/ui/components/button";
 import { cn } from "@timesheet/ui/lib/utils";
-import { addWeeks, endOfWeek, format, startOfWeek } from "date-fns";
+import {
+  addWeeks,
+  differenceInCalendarWeeks,
+  endOfWeek,
+  format,
+  startOfWeek,
+} from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   useUserSettings,
-  useWorkLogs,
   useLegalRuleSets,
   usePaySettings,
+  useWorkLogs,
 } from "@/hooks/use-timesheet-data";
 import { formatDateKey, parseDateKey } from "@/lib/date";
+import { clearRecentLogDate, readRecentLogDate } from "@/lib/recent-log";
 import {
+  calculateDailyHours,
+  calculatePayBreakdown,
   calculateWeeklySummary,
+  createCalculationSnapshot,
   formatMinutesAsHours,
   getActiveRuleSet,
+  getTargetHoursForDay,
 } from "@/lib/rules-engine";
+import type { CalculationSnapshot, WorkLog } from "@/lib/types";
 
 const getDayTypeLabel = (
   dayType: "ordinary" | "sunday" | "holiday"
@@ -31,12 +43,159 @@ const getDayTypeLabel = (
   return "ORD";
 };
 
+const getDayTypeFullLabel = (
+  dayType: "ordinary" | "sunday" | "holiday"
+): string => {
+  if (dayType === "sunday") {
+    return "Domingo";
+  }
+  if (dayType === "holiday") {
+    return "Festivo";
+  }
+  return "Ordinario";
+};
+
+const computeWeekOffsetFromDateKey = (dateKey: string | null): number => {
+  if (!dateKey) {
+    return 0;
+  }
+
+  const parsedDate = parseDateKey(dateKey);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return 0;
+  }
+
+  return differenceInCalendarWeeks(
+    startOfWeek(parsedDate, { weekStartsOn: 0 }),
+    startOfWeek(new Date(), { weekStartsOn: 0 })
+  );
+};
+
+const SummaryMetric = ({
+  label,
+  minutes,
+}: {
+  label: string;
+  minutes: number;
+}) => (
+  <div className="bg-background p-4 md:p-5">
+    <p className="text-[10px] font-black uppercase tracking-[0.35em] text-muted-foreground">
+      {label}
+    </p>
+    <p
+      className={cn(
+        "mt-3 text-2xl sm:text-3xl font-black tracking-tighter tabular-nums",
+        minutes > 0 ? "text-foreground" : "text-muted-foreground/40"
+      )}
+    >
+      {formatMinutesAsHours(minutes)}
+    </p>
+  </div>
+);
+
+const DailyLogSummaryPanel = ({
+  label,
+  log,
+  snapshot,
+}: {
+  label: string;
+  log: WorkLog;
+  snapshot: CalculationSnapshot;
+}) => {
+  const summaryDate = parseDateKey(log.date);
+  const isValidDate = !Number.isNaN(summaryDate.getTime());
+  const summaryDateLabel = isValidDate
+    ? format(summaryDate, "EEEE d 'de' MMMM", { locale: es })
+    : log.date;
+  const totalNightMinutes =
+    snapshot.ordinaryNightMinutes + snapshot.overtimeNightMinutes;
+
+  return (
+    <section className="mb-16 overflow-hidden border border-foreground/10 bg-background animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="grid gap-px bg-foreground/10 lg:grid-cols-[1.25fr_0.75fr]">
+        <div className="bg-background p-6 md:p-8">
+          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-muted-foreground">
+            {label}
+          </p>
+          <div className="mt-4 flex flex-col gap-3">
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tighter uppercase leading-[0.9]">
+              {summaryDateLabel}
+            </h2>
+            <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+              {getDayTypeFullLabel(log.dayType)} ·{" "}
+              {formatMinutesAsHours(snapshot.totalWorkedMinutes)} trabajadas
+            </p>
+          </div>
+          {log.note ? (
+            <p className="mt-6 max-w-2xl border-l-2 border-foreground/10 pl-4 text-sm leading-6 text-muted-foreground">
+              {log.note}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="grid gap-px bg-foreground/10 sm:grid-cols-2">
+          <div className="bg-foreground p-6 text-background">
+            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-background/70">
+              Horas extra
+            </p>
+            <p className="mt-4 text-4xl sm:text-5xl font-black tracking-tighter tabular-nums">
+              {formatMinutesAsHours(snapshot.totalOvertimeMinutes)}
+            </p>
+          </div>
+          <div className="bg-background p-6">
+            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-muted-foreground">
+              Horas nocturnas
+            </p>
+            <p className="mt-4 text-4xl sm:text-5xl font-black tracking-tighter tabular-nums">
+              {formatMinutesAsHours(totalNightMinutes)}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-px bg-foreground/10 md:grid-cols-2 xl:grid-cols-4">
+        <SummaryMetric
+          label="Diurna ordinaria"
+          minutes={snapshot.ordinaryDayMinutes}
+        />
+        <SummaryMetric
+          label="Nocturna ordinaria"
+          minutes={snapshot.ordinaryNightMinutes}
+        />
+        <SummaryMetric
+          label="Extra diurna"
+          minutes={snapshot.overtimeDayMinutes}
+        />
+        <SummaryMetric
+          label="Extra nocturna"
+          minutes={snapshot.overtimeNightMinutes}
+        />
+        <SummaryMetric
+          label="Dom/Festiva ordinaria"
+          minutes={snapshot.sundayHolidayOrdinaryMinutes}
+        />
+        <SummaryMetric
+          label="Dom/Festiva extra"
+          minutes={snapshot.sundayHolidayOvertimeMinutes}
+        />
+        <SummaryMetric label="Descanso" minutes={snapshot.totalBreakMinutes} />
+      </div>
+    </section>
+  );
+};
+
 export default function ResumenPage() {
   const { settings } = useUserSettings();
   const { logs } = useWorkLogs();
   const { ruleSets } = useLegalRuleSets();
   const { paySettings } = usePaySettings();
-  const [weekOffset, setWeekOffset] = useState(0);
+  const [recentSavedDateKey, setRecentSavedDateKey] = useState<string | null>(
+    () => readRecentLogDate()
+  );
+  const initialWeekOffsetRef = useRef(
+    computeWeekOffsetFromDateKey(recentSavedDateKey)
+  );
+  const [weekOffset, setWeekOffset] = useState(initialWeekOffsetRef.current);
 
   const currentDate = new Date();
   const weekStart = addWeeks(
@@ -87,6 +246,71 @@ export default function ResumenPage() {
         .sort((a, b) => b.date.localeCompare(a.date)),
     [logs, weekEndKey, weekStartKey]
   );
+
+  const summaryLog = useMemo(() => {
+    if (recentSavedDateKey) {
+      return logs.find((log) => log.date === recentSavedDateKey) ?? null;
+    }
+
+    return dailyLogs[0] ?? null;
+  }, [dailyLogs, logs, recentSavedDateKey]);
+
+  const summarySnapshot = useMemo(() => {
+    if (!settings || !summaryLog) {
+      return null;
+    }
+
+    if (summaryLog.calculationSnapshot) {
+      return summaryLog.calculationSnapshot;
+    }
+
+    const logDate = parseDateKey(summaryLog.date);
+    if (Number.isNaN(logDate.getTime())) {
+      return null;
+    }
+
+    const logRuleSet =
+      ruleSets.find((candidate) => candidate.id === summaryLog.ruleSetId) ??
+      getActiveRuleSet(ruleSets, logDate);
+
+    if (!logRuleSet) {
+      return null;
+    }
+
+    const targetHours = getTargetHoursForDay(
+      logDate,
+      settings.weeklyTargetHours
+    );
+    const calculation = calculateDailyHours(
+      logDate,
+      summaryLog.segments,
+      summaryLog.breaks,
+      summaryLog.dayType,
+      targetHours,
+      logRuleSet,
+      0
+    );
+    const payBreakdown = calculatePayBreakdown(
+      calculation,
+      paySettings,
+      logRuleSet
+    );
+
+    return createCalculationSnapshot(calculation, payBreakdown, logRuleSet.id);
+  }, [paySettings, ruleSets, settings, summaryLog]);
+
+  useEffect(() => {
+    clearRecentLogDate();
+  }, []);
+
+  useEffect(() => {
+    if (
+      recentSavedDateKey !== null &&
+      weekOffset !== initialWeekOffsetRef.current
+    ) {
+      setRecentSavedDateKey(null);
+    }
+  }, [recentSavedDateKey, weekOffset]);
 
   if (!settings) {
     return (
@@ -192,6 +416,16 @@ export default function ResumenPage() {
             </p>
           </div>
         </div>
+      )}
+
+      {summaryLog && summarySnapshot && (
+        <DailyLogSummaryPanel
+          label={
+            recentSavedDateKey ? "Registro recién guardado" : "Último registro"
+          }
+          log={summaryLog}
+          snapshot={summarySnapshot}
+        />
       )}
 
       <div className="grid gap-16 lg:grid-cols-12">

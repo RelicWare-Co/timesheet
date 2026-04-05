@@ -17,6 +17,7 @@ import {
   useWorkLogs,
 } from "@/hooks/use-timesheet-data";
 import { formatDateKey, parseDateKey } from "@/lib/date";
+import { saveRecentLogDate } from "@/lib/recent-log";
 import {
   calculateDailyHours,
   calculatePayBreakdown,
@@ -509,6 +510,7 @@ export default function RegistrarPage() {
       };
 
       await saveLog(log);
+      saveRecentLogDate(dateStr);
       navigate({ to: "/resumen" });
     } finally {
       setIsSaving(false);
