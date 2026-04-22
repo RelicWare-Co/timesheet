@@ -102,6 +102,7 @@ const DailyLogSummaryPanel = ({
   log: WorkLog;
   snapshot: CalculationSnapshot;
 }) => {
+  const [showBreakdown, setShowBreakdown] = useState(false);
   const summaryDate = parseDateKey(log.date);
   const isValidDate = !Number.isNaN(summaryDate.getTime());
   const summaryDateLabel = isValidDate
@@ -118,7 +119,7 @@ const DailyLogSummaryPanel = ({
             {label}
           </p>
           <div className="mt-4 flex flex-col gap-3">
-            <h2 className="text-3xl sm:text-4xl font-black tracking-tighter uppercase leading-[0.9]">
+            <h2 className="font-heading text-3xl sm:text-4xl font-black tracking-tighter uppercase leading-[0.9]">
               {summaryDateLabel}
             </h2>
             <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
@@ -127,7 +128,7 @@ const DailyLogSummaryPanel = ({
             </p>
           </div>
           {log.note ? (
-            <p className="mt-6 max-w-2xl border-l-2 border-foreground/10 pl-4 text-sm leading-6 text-muted-foreground">
+            <p className="mt-6 max-w-2xl bg-secondary/20 p-4 text-sm leading-6 text-muted-foreground">
               {log.note}
             </p>
           ) : null}
@@ -153,33 +154,54 @@ const DailyLogSummaryPanel = ({
         </div>
       </div>
 
-      <div className="grid gap-px bg-foreground/10 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-px bg-foreground/10 md:grid-cols-3">
         <SummaryMetric
-          label="Diurna ordinaria"
-          minutes={snapshot.ordinaryDayMinutes}
+          label="Total trabajado"
+          minutes={snapshot.totalWorkedMinutes}
         />
         <SummaryMetric
-          label="Nocturna ordinaria"
-          minutes={snapshot.ordinaryNightMinutes}
-        />
-        <SummaryMetric
-          label="Extra diurna"
-          minutes={snapshot.overtimeDayMinutes}
-        />
-        <SummaryMetric
-          label="Extra nocturna"
-          minutes={snapshot.overtimeNightMinutes}
-        />
-        <SummaryMetric
-          label="Dom/Festiva ordinaria"
-          minutes={snapshot.sundayHolidayOrdinaryMinutes}
-        />
-        <SummaryMetric
-          label="Dom/Festiva extra"
-          minutes={snapshot.sundayHolidayOvertimeMinutes}
+          label="Horas extra"
+          minutes={snapshot.totalOvertimeMinutes}
         />
         <SummaryMetric label="Descanso" minutes={snapshot.totalBreakMinutes} />
       </div>
+
+      <button
+        type="button"
+        onClick={() => setShowBreakdown(!showBreakdown)}
+        className="w-full py-3 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-secondary/20 transition-colors border-t border-foreground/10"
+      >
+        {showBreakdown ? "Ocultar desglose" : "Ver desglose detallado"}
+      </button>
+
+      {showBreakdown && (
+        <div className="grid gap-px bg-foreground/10 md:grid-cols-2 xl:grid-cols-4 animate-in fade-in duration-300">
+          <SummaryMetric
+            label="Diurna ordinaria"
+            minutes={snapshot.ordinaryDayMinutes}
+          />
+          <SummaryMetric
+            label="Nocturna ordinaria"
+            minutes={snapshot.ordinaryNightMinutes}
+          />
+          <SummaryMetric
+            label="Extra diurna"
+            minutes={snapshot.overtimeDayMinutes}
+          />
+          <SummaryMetric
+            label="Extra nocturna"
+            minutes={snapshot.overtimeNightMinutes}
+          />
+          <SummaryMetric
+            label="Dom/Festiva ordinaria"
+            minutes={snapshot.sundayHolidayOrdinaryMinutes}
+          />
+          <SummaryMetric
+            label="Dom/Festiva extra"
+            minutes={snapshot.sundayHolidayOvertimeMinutes}
+          />
+        </div>
+      )}
     </section>
   );
 };
@@ -315,13 +337,18 @@ export default function ResumenPage() {
   if (!settings) {
     return (
       <div className="container mx-auto px-4 py-16 text-center max-w-xl">
-        <h2 className="text-4xl font-black uppercase mb-4 tracking-tighter">
+        <h2 className="font-heading text-4xl font-black uppercase mb-4 tracking-tighter">
           Bienvenido
         </h2>
+        <p className="text-base text-muted-foreground mb-8 leading-relaxed">
+          Configura tu perfil para empezar a registrar jornadas y calcular
+          automáticamente horas extra, recargos nocturnos y estimaciones de
+          salario según la ley laboral colombiana.
+        </p>
         <Link to="/configuracion/inicial">
           <Button
             size="lg"
-            className="h-16 w-full text-xl font-bold uppercase tracking-widest rounded-none"
+            className="h-16 w-full text-xl font-bold uppercase tracking-widest"
           >
             Comenzar <ArrowRight className="ml-2" />
           </Button>

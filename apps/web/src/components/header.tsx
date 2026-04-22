@@ -100,7 +100,7 @@ export default function Header() {
                   {label}
                 </span>
                 {isActive && (
-                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-foreground rounded-b-sm" />
+                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-foreground" />
                 )}
               </Link>
             );

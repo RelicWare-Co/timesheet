@@ -14,6 +14,7 @@ import { NumberInput } from "@timesheet/ui/components/number-input";
 import { cn } from "@timesheet/ui/lib/utils";
 import { ArrowLeft, Save, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import {
   useLegalRuleSets,
@@ -81,19 +82,14 @@ export default function SettingsPage() {
   const [logToDelete, setLogToDelete] = useState<WorkLog | null>(null);
   const [isDeletingLog, setIsDeletingLog] = useState(false);
 
-  const handleSaveTargets = async () => {
+  const handleSaveAll = async () => {
     setIsSaving(true);
     try {
-      await saveSettings({ weeklyTargetHours: targets });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleSavePay = async () => {
-    setIsSaving(true);
-    try {
-      await saveSettings({ paySettings });
+      await saveSettings({
+        paySettings,
+        weeklyTargetHours: targets,
+      });
+      toast.success("Configuración guardada");
     } finally {
       setIsSaving(false);
     }
@@ -115,13 +111,18 @@ export default function SettingsPage() {
   if (!settings) {
     return (
       <div className="container mx-auto px-4 py-16 text-center max-w-xl">
-        <h2 className="text-4xl font-black uppercase mb-4 tracking-tighter">
+        <h2 className="font-heading text-4xl font-black uppercase mb-4 tracking-tighter">
           Configura tu perfil
         </h2>
+        <p className="text-base text-muted-foreground mb-8 leading-relaxed">
+          Define tu jornada semanal, salario base y moneda para que Timesheet
+          calcule automáticamente tus horas extra y recargos según la ley
+          colombiana. Los datos se guardan solo en tu dispositivo.
+        </p>
         <Link to="/configuracion/inicial">
           <Button
             size="lg"
-            className="h-16 w-full text-xl font-bold uppercase tracking-widest rounded-none"
+            className="h-16 w-full text-xl font-bold uppercase tracking-widest"
           >
             Ir a configuración
           </Button>
@@ -212,15 +213,6 @@ export default function SettingsPage() {
                   </div>
                 ))}
               </div>
-              <Button
-                size="lg"
-                onClick={handleSaveTargets}
-                disabled={isSaving}
-                className="h-14 w-full sm:w-auto px-8 font-black uppercase tracking-widest rounded-none shadow-none text-background bg-foreground"
-              >
-                <Save className="mr-3 size-5" />
-                {isSaving ? "Guardando..." : "Guardar"}
-              </Button>
             </div>
           )}
 
@@ -339,16 +331,6 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </div>
-
-              <Button
-                size="lg"
-                onClick={handleSavePay}
-                disabled={isSaving}
-                className="h-14 w-full sm:w-auto px-8 font-black uppercase tracking-widest rounded-none shadow-none text-background bg-foreground"
-              >
-                <Save className="mr-3 size-5" />
-                {isSaving ? "Guardando..." : "Guardar"}
-              </Button>
             </div>
           )}
 
@@ -443,7 +425,7 @@ export default function SettingsPage() {
                             )}
                           </p>
                           <p className="text-[10px] font-black uppercase tracking-widest opacity-50 mt-1">
-                            {getDayTypeLabel(log.dayType)} •{" "}
+                            {getDayTypeLabel(log.dayType)} ·{" "}
                             {log.calculationSnapshot
                               ? formatMinutesAsHours(
                                   log.calculationSnapshot.totalWorkedMinutes
@@ -469,6 +451,20 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {activeTab !== "logs" && activeTab !== "rules" && (
+        <div className="fixed bottom-0 left-0 w-full bg-background border-t border-foreground/10 p-4 z-50 md:hidden">
+          <Button
+            size="lg"
+            onClick={handleSaveAll}
+            disabled={isSaving}
+            className="h-14 w-full font-black uppercase tracking-widest text-background bg-foreground"
+          >
+            <Save className="mr-3 size-5" />
+            {isSaving ? "Guardando..." : "Guardar cambios"}
+          </Button>
+        </div>
+      )}
+
       <AlertDialog
         open={logToDelete !== null}
         onOpenChange={(o) => !o && setLogToDelete(null)}
@@ -478,8 +474,16 @@ export default function SettingsPage() {
             <AlertDialogTitle className="text-2xl font-black tracking-tighter uppercase mb-2">
               Eliminar registro
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-sm font-bold uppercase tracking-widest opacity-60">
-              Esta acción es irreversible.
+            <AlertDialogDescription className="text-sm font-medium tracking-normal opacity-80 normal-case">
+              Esta acción elimina permanentemente el registro del{" "}
+              {logToDelete
+                ? parseDateKey(logToDelete.date).toLocaleDateString("es-CO", {
+                    day: "numeric",
+                    month: "long",
+                    weekday: "long",
+                  })
+                : ""}
+              . No se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-8 flex flex-col sm:flex-row gap-4 sm:space-x-0">
@@ -494,7 +498,7 @@ export default function SettingsPage() {
               onClick={handleDeleteLog}
               className="rounded-none h-14 w-full sm:w-auto font-black uppercase tracking-widest bg-foreground text-background shadow-none border border-foreground"
             >
-              {isDeletingLog ? "..." : "Confirmar"}
+              {isDeletingLog ? "Eliminando..." : "Sí, eliminar"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

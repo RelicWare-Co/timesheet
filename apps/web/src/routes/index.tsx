@@ -4,16 +4,19 @@ import { ArrowRight, Clock, CalendarDays, Settings } from "lucide-react";
 const HomeComponent = () => (
   <div className="container mx-auto px-4 sm:px-8 py-12 md:py-24 max-w-7xl">
     <div className="mb-16 md:mb-32 animate-in fade-in slide-in-from-bottom-8 duration-700">
-      <h1 className="text-6xl sm:text-8xl md:text-[9rem] font-black tracking-tighter leading-[0.85] uppercase mb-8">
+      <h1 className="font-heading text-6xl sm:text-8xl md:text-[9rem] font-black tracking-tighter leading-[0.85] uppercase mb-8">
         Domina
         <br />
         Tu
         <br />
         Tiempo.
       </h1>
-      <p className="max-w-2xl text-xl sm:text-2xl font-bold tracking-tight text-muted-foreground uppercase">
-        Registro brutalmente simple. Precisión absoluta en horas extra y
-        salarios. Sin fricción.
+      <p className="max-w-2xl text-xl sm:text-2xl font-medium tracking-tight text-muted-foreground leading-relaxed">
+        Registro brutalmente simple de jornadas laborales. Calcula horas extra,
+        recargos nocturnos y salario según la ley colombiana.
+        <span className="block mt-2 text-sm font-bold uppercase tracking-widest opacity-60">
+          Sin fricción. Sin dudas.
+        </span>
       </p>
     </div>
 
@@ -25,7 +28,7 @@ const HomeComponent = () => (
       >
         <div>
           <Clock className="size-10 mb-6" strokeWidth={2} />
-          <h2 className="text-4xl font-black tracking-tighter uppercase mb-2">
+          <h2 className="font-heading text-4xl font-black tracking-tighter uppercase mb-2">
             Registrar
           </h2>
           <p className="text-sm font-bold uppercase tracking-widest opacity-60">
@@ -46,7 +49,7 @@ const HomeComponent = () => (
       >
         <div>
           <CalendarDays className="size-10 mb-6" strokeWidth={2} />
-          <h2 className="text-4xl font-black tracking-tighter uppercase mb-2">
+          <h2 className="font-heading text-4xl font-black tracking-tighter uppercase mb-2">
             Resumen
           </h2>
           <p className="text-sm font-bold uppercase tracking-widest opacity-60">
@@ -67,7 +70,7 @@ const HomeComponent = () => (
       >
         <div>
           <Settings className="size-10 mb-6" strokeWidth={2} />
-          <h2 className="text-4xl font-black tracking-tighter uppercase mb-2">
+          <h2 className="font-heading text-4xl font-black tracking-tighter uppercase mb-2">
             Ajustes
           </h2>
           <p className="text-sm font-bold uppercase tracking-widest opacity-60">

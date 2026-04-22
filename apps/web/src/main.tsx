@@ -1,4 +1,5 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { Toaster } from "@timesheet/ui/components/sonner";
 import ReactDOM from "react-dom/client";
 
 import Loader from "./components/loader";
@@ -25,5 +26,10 @@ if (!rootElement) {
 
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
-  root.render(<RouterProvider router={router} />);
+  root.render(
+    <>
+      <RouterProvider router={router} />
+      <Toaster position="bottom-center" />
+    </>
+  );
 }

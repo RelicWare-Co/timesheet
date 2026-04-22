@@ -30,39 +30,39 @@ export const ModeToggle = () => {
       <DropdownMenuTrigger
         render={
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
-            className="rounded-full bg-secondary/30 border border-border/50 backdrop-blur-sm hover:bg-secondary/60 hover:shadow-sm transition-all"
+            className="border-foreground/20 hover:bg-foreground hover:text-background transition-colors"
           />
         }
       >
-        <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90 text-amber-500" />
-        <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0 text-indigo-400" />
+        <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+        <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
         <span className="sr-only">Toggle theme</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="rounded-xl border-border/50 bg-card/95 backdrop-blur-xl shadow-lg"
+        className="border-foreground/10 bg-background"
       >
         <DropdownMenuItem
           onClick={handleLightTheme}
-          className="gap-2 cursor-pointer rounded-lg font-medium"
+          className="gap-2 cursor-pointer font-medium"
         >
-          <Sun className="size-4 text-amber-500" />
+          <Sun className="size-4" />
           Claro
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={handleDarkTheme}
-          className="gap-2 cursor-pointer rounded-lg font-medium"
+          className="gap-2 cursor-pointer font-medium"
         >
-          <Moon className="size-4 text-indigo-400" />
+          <Moon className="size-4" />
           Oscuro
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={handleSystemTheme}
-          className="gap-2 cursor-pointer rounded-lg font-medium"
+          className="gap-2 cursor-pointer font-medium"
         >
-          <Laptop className="size-4 text-muted-foreground" />
+          <Laptop className="size-4" />
           Sistema
         </DropdownMenuItem>
       </DropdownMenuContent>

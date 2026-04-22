@@ -1,12 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@timesheet/ui/components/button";
 import { Calendar } from "@timesheet/ui/components/calendar";
-import { Input } from "@timesheet/ui/components/input";
+import { Textarea } from "@timesheet/ui/components/textarea";
 import { cn } from "@timesheet/ui/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, Clock, Save, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import {
   useHolidays,
@@ -53,6 +54,68 @@ const getDayTypeLabel = (
     return "Domingo";
   }
   return "Festivo";
+};
+
+const timeToMinutes = (time: string): number => {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+};
+
+interface ValidationError {
+  segmentId?: string;
+  breakId?: string;
+  message: string;
+}
+
+const validateSegments = (segs: SegmentInput[]): ValidationError[] => {
+  const errors: ValidationError[] = [];
+  for (const seg of segs) {
+    const start = timeToMinutes(seg.startTime);
+    const end = timeToMinutes(seg.endTime);
+    if (end <= start) {
+      errors.push({
+        message: "La salida debe ser después de la entrada",
+        segmentId: seg.id,
+      });
+    }
+  }
+  for (let idx = 0; idx < segs.length - 1; idx += 1) {
+    const currEnd = timeToMinutes(segs[idx].endTime);
+    const nextStart = timeToMinutes(segs[idx + 1].startTime);
+    if (nextStart < currEnd) {
+      errors.push({
+        message: "Los segmentos se solapan",
+        segmentId: segs[idx + 1].id,
+      });
+    }
+  }
+  return errors;
+};
+
+const validateBreaks = (
+  breaks: BreakInput[],
+  segs: SegmentInput[]
+): ValidationError[] => {
+  const errors: ValidationError[] = [];
+  const workStart = Math.min(...segs.map((s) => timeToMinutes(s.startTime)));
+  const workEnd = Math.max(...segs.map((s) => timeToMinutes(s.endTime)));
+  for (const b of breaks) {
+    const start = timeToMinutes(b.startTime);
+    const end = timeToMinutes(b.endTime);
+    if (end <= start) {
+      errors.push({
+        breakId: b.id,
+        message: "La salida del descanso debe ser después de la entrada",
+      });
+    }
+    if (start < workStart || end > workEnd) {
+      errors.push({
+        breakId: b.id,
+        message: "El descanso debe estar dentro de la jornada",
+      });
+    }
+  }
+  return errors;
 };
 
 const BrutalistTimePicker = ({
@@ -277,6 +340,7 @@ export default function RegistrarPage() {
   const [breaks, setBreaks] = useState<BreakInput[]>([]);
   const [note, setNote] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState<ValidationError[]>([]);
   const calcPreview = useMemo(() => {
     if (!settings) {
       return null;
@@ -450,8 +514,22 @@ export default function RegistrarPage() {
     setBreaks(updated);
   };
 
+  useEffect(() => {
+    const segErrors = validateSegments(segments);
+    const breakErrors = validateBreaks(breaks, segments);
+    setErrors([...segErrors, ...breakErrors]);
+  }, [segments, breaks]);
+
   const handleSave = async () => {
     if (!settings) {
+      return;
+    }
+    const segErrors = validateSegments(segments);
+    const breakErrors = validateBreaks(breaks, segments);
+    const allErrors = [...segErrors, ...breakErrors];
+    if (allErrors.length > 0) {
+      setErrors(allErrors);
+      toast.error("Corrige los errores antes de guardar");
       return;
     }
     setIsSaving(true);
@@ -511,6 +589,10 @@ export default function RegistrarPage() {
 
       await saveLog(log);
       saveRecentLogDate(dateStr);
+      const dayLabel = format(selectedDate, "EEEE d 'de' MMMM", {
+        locale: es,
+      });
+      toast.success(`Registro guardado: ${dayLabel}`);
       navigate({ to: "/resumen" });
     } finally {
       setIsSaving(false);
@@ -519,18 +601,50 @@ export default function RegistrarPage() {
 
   const dayName = format(selectedDate, "EEEE d 'de' MMMM", { locale: es });
 
+  const getSaveButtonLabel = () => {
+    if (isSaving) {
+      return "Guardando...";
+    }
+    if (errors.length > 0) {
+      return "Corrige para guardar";
+    }
+    return "Guardar Jornada";
+  };
+
+  const handleSaveRef = useRef(handleSave);
+  handleSaveRef.current = handleSave;
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        if (!isSaving && errors.length === 0) {
+          void handleSaveRef.current();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isSaving, errors.length]);
+
   if (!settings) {
     return (
       <div className="container mx-auto px-4 py-16 text-center max-w-xl">
-        <h2 className="text-4xl font-black uppercase mb-4 tracking-tighter">
+        <h2 className="font-heading text-4xl font-black uppercase mb-4 tracking-tighter">
           Perfil no configurado
         </h2>
+        <p className="text-base text-muted-foreground mb-8 leading-relaxed">
+          Para calcular horas extra, recargos nocturnos y estimaciones de
+          salario según la ley colombiana, necesitamos conocer tu jornada
+          semanal y condiciones de pago. Tu información se guarda solo en este
+          dispositivo.
+        </p>
         <Link to="/configuracion/inicial">
           <Button
             size="lg"
-            className="h-16 w-full text-xl font-bold uppercase tracking-widest rounded-none"
+            className="h-16 w-full text-xl font-bold uppercase tracking-widest"
           >
-            Configurar
+            Configurar mi perfil
           </Button>
         </Link>
       </div>
@@ -616,46 +730,69 @@ export default function RegistrarPage() {
               </button>
             </div>
             <div className="space-y-4">
-              {segments.map((segment) => (
-                <div
-                  key={segment.id}
-                  className="flex flex-col sm:flex-row items-center gap-2"
-                >
-                  <div className="flex-1 w-full border border-foreground/10 p-2 flex items-center bg-background">
-                    <span className="text-[10px] font-bold uppercase tracking-widest px-2 opacity-50">
-                      IN
-                    </span>
-                    <BrutalistTimePicker
-                      value={segment.startTime}
-                      onChange={(val) =>
-                        updateSegment(segment.id, "startTime", val)
-                      }
-                    />
+              {segments.map((segment) => {
+                const segErrors = errors.filter(
+                  (e) => e.segmentId === segment.id
+                );
+                return (
+                  <div key={segment.id} className="space-y-1">
+                    <div className="flex flex-col sm:flex-row items-center gap-2">
+                      <div
+                        className={cn(
+                          "flex-1 w-full border p-2 flex items-center bg-background",
+                          segErrors.length > 0
+                            ? "border-destructive"
+                            : "border-foreground/10"
+                        )}
+                      >
+                        <span className="text-[10px] font-bold uppercase tracking-widest px-2 opacity-50">
+                          IN
+                        </span>
+                        <BrutalistTimePicker
+                          value={segment.startTime}
+                          onChange={(val) =>
+                            updateSegment(segment.id, "startTime", val)
+                          }
+                        />
+                      </div>
+                      <span className="hidden sm:block opacity-30">-</span>
+                      <div
+                        className={cn(
+                          "flex-1 w-full border p-2 flex items-center bg-background",
+                          segErrors.length > 0
+                            ? "border-destructive"
+                            : "border-foreground/10"
+                        )}
+                      >
+                        <span className="text-[10px] font-bold uppercase tracking-widest px-2 opacity-50">
+                          OUT
+                        </span>
+                        <BrutalistTimePicker
+                          value={segment.endTime}
+                          onChange={(val) =>
+                            updateSegment(segment.id, "endTime", val)
+                          }
+                        />
+                      </div>
+                      {segments.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeSegment(segment.id)}
+                          className="rounded-none shrink-0 border border-transparent hover:border-destructive hover:text-destructive hover:bg-transparent"
+                        >
+                          <Trash2 className="size-5" />
+                        </Button>
+                      )}
+                    </div>
+                    {segErrors[0] && (
+                      <p className="text-xs font-bold text-destructive">
+                        {segErrors[0].message}
+                      </p>
+                    )}
                   </div>
-                  <span className="hidden sm:block opacity-30">-</span>
-                  <div className="flex-1 w-full border border-foreground/10 p-2 flex items-center bg-background">
-                    <span className="text-[10px] font-bold uppercase tracking-widest px-2 opacity-50">
-                      OUT
-                    </span>
-                    <BrutalistTimePicker
-                      value={segment.endTime}
-                      onChange={(val) =>
-                        updateSegment(segment.id, "endTime", val)
-                      }
-                    />
-                  </div>
-                  {segments.length > 1 && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeSegment(segment.id)}
-                      className="rounded-none shrink-0 border border-transparent hover:border-destructive hover:text-destructive hover:bg-transparent"
-                    >
-                      <Trash2 className="size-5" />
-                    </Button>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -674,49 +811,77 @@ export default function RegistrarPage() {
               </button>
             </div>
             {breaks.length === 0 ? (
-              <div className="border border-foreground/10 border-dashed p-8 text-center text-sm font-bold uppercase tracking-widest text-muted-foreground">
-                Sin descansos
+              <div className="border border-foreground/10 border-dashed p-8 text-center">
+                <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-2">
+                  Sin descansos registrados
+                </p>
+                <p className="text-xs text-muted-foreground/60">
+                  Añade descansos si tu jornada incluye pausas.
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
-                {breaks.map((breakSegment) => (
-                  <div
-                    key={breakSegment.id}
-                    className="flex flex-col sm:flex-row items-center gap-2"
-                  >
-                    <div className="flex-1 w-full border border-foreground/10 p-2 flex items-center bg-secondary/20">
-                      <span className="text-[10px] font-bold uppercase tracking-widest px-2 opacity-50">
-                        IN
-                      </span>
-                      <BrutalistTimePicker
-                        value={breakSegment.startTime}
-                        onChange={(val) =>
-                          updateBreak(breakSegment.id, "startTime", val)
-                        }
-                      />
+                {breaks.map((breakSegment) => {
+                  const breakErrors = errors.filter(
+                    (e) => e.breakId === breakSegment.id
+                  );
+                  return (
+                    <div key={breakSegment.id} className="space-y-1">
+                      <div className="flex flex-col sm:flex-row items-center gap-2">
+                        <div
+                          className={cn(
+                            "flex-1 w-full border p-2 flex items-center bg-secondary/20",
+                            breakErrors.length > 0
+                              ? "border-destructive"
+                              : "border-foreground/10"
+                          )}
+                        >
+                          <span className="text-[10px] font-bold uppercase tracking-widest px-2 opacity-50">
+                            IN
+                          </span>
+                          <BrutalistTimePicker
+                            value={breakSegment.startTime}
+                            onChange={(val) =>
+                              updateBreak(breakSegment.id, "startTime", val)
+                            }
+                          />
+                        </div>
+                        <span className="hidden sm:block opacity-30">-</span>
+                        <div
+                          className={cn(
+                            "flex-1 w-full border p-2 flex items-center bg-secondary/20",
+                            breakErrors.length > 0
+                              ? "border-destructive"
+                              : "border-foreground/10"
+                          )}
+                        >
+                          <span className="text-[10px] font-bold uppercase tracking-widest px-2 opacity-50">
+                            OUT
+                          </span>
+                          <BrutalistTimePicker
+                            value={breakSegment.endTime}
+                            onChange={(val) =>
+                              updateBreak(breakSegment.id, "endTime", val)
+                            }
+                          />
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeBreak(breakSegment.id)}
+                          className="rounded-none shrink-0 hover:text-destructive hover:bg-transparent"
+                        >
+                          <Trash2 className="size-5" />
+                        </Button>
+                      </div>
+                      {breakErrors[0] && (
+                        <p className="text-xs font-bold text-destructive">
+                          {breakErrors[0].message}
+                        </p>
+                      )}
                     </div>
-                    <span className="hidden sm:block opacity-30">-</span>
-                    <div className="flex-1 w-full border border-foreground/10 p-2 flex items-center bg-secondary/20">
-                      <span className="text-[10px] font-bold uppercase tracking-widest px-2 opacity-50">
-                        OUT
-                      </span>
-                      <BrutalistTimePicker
-                        value={breakSegment.endTime}
-                        onChange={(val) =>
-                          updateBreak(breakSegment.id, "endTime", val)
-                        }
-                      />
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeBreak(breakSegment.id)}
-                      className="rounded-none shrink-0 hover:text-destructive hover:bg-transparent"
-                    >
-                      <Trash2 className="size-5" />
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -726,11 +891,11 @@ export default function RegistrarPage() {
             <h3 className="text-sm font-black uppercase tracking-widest border-b border-foreground/10 pb-2 mb-6">
               Notas
             </h3>
-            <Input
-              placeholder="Escribe algo sobre la jornada..."
+            <Textarea
+              placeholder="Observaciones sobre la jornada: tareas especiales, retrasos justificados, etc."
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="h-16 text-lg font-bold border-foreground/10 rounded-none shadow-none focus-visible:ring-1 focus-visible:ring-foreground bg-transparent"
+              className="min-h-[80px] text-base font-medium border-foreground/10 rounded-none shadow-none focus-visible:ring-1 focus-visible:ring-foreground bg-transparent placeholder:text-muted-foreground/50"
             />
           </div>
 
@@ -745,14 +910,24 @@ export default function RegistrarPage() {
               </div>
             )}
 
+            {errors.length > 0 && (
+              <div className="p-4 border border-destructive bg-destructive/5 text-destructive text-sm font-bold">
+                Corrige {errors.length} error{errors.length > 1 ? "es" : ""}{" "}
+                antes de guardar.
+              </div>
+            )}
+
             <Button
               onClick={handleSave}
-              disabled={isSaving}
-              className="h-16 w-full text-lg font-black uppercase tracking-widest rounded-none shadow-none transition-transform active:scale-[0.98] border border-foreground bg-foreground hover:bg-foreground/90 text-background"
+              disabled={isSaving || errors.length > 0}
+              className="h-16 w-full text-lg font-black uppercase tracking-widest rounded-none shadow-none transition-transform active:scale-[0.98] border border-foreground bg-foreground hover:bg-foreground/90 text-background disabled:opacity-40"
             >
               <Save className="mr-3 size-6" />
-              {isSaving ? "Guardando..." : "Guardar Jornada"}
+              {getSaveButtonLabel()}
             </Button>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40 text-center">
+              Atajo: Ctrl + S
+            </p>
           </div>
         </div>
       </div>
