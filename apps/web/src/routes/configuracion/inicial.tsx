@@ -109,8 +109,11 @@ export default function SetupPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center p-8">
-        <div className="size-10 border-4 border-foreground/20 border-t-foreground animate-spin" />
+      <div className="flex min-h-[70dvh] flex-col items-center justify-center gap-4 p-8">
+        <div className="size-10 shrink-0 border-4 border-primary/20 border-t-primary animate-spin rounded-full" />
+        <p className="text-sm font-medium text-muted-foreground">
+          Cargando tu perfil...
+        </p>
       </div>
     );
   }
@@ -118,14 +121,14 @@ export default function SetupPage() {
   if (settings) {
     return (
       <div className="container mx-auto max-w-2xl px-4 py-16 animate-in fade-in duration-700">
-        <div className="border border-foreground/10 p-10 text-center">
-          <div className="mx-auto mb-8 flex size-20 items-center justify-center bg-foreground text-background">
-            <Check className="size-8" strokeWidth={3} />
+        <div className="bg-card rounded-2xl border border-border p-10 text-center">
+          <div className="mx-auto mb-6 flex size-16 items-center justify-center bg-primary/10 text-primary rounded-2xl">
+            <Check className="size-8" strokeWidth={2.5} />
           </div>
-          <h1 className="font-heading text-4xl font-black uppercase mb-4 tracking-tighter">
+          <h1 className="font-heading text-3xl font-bold mb-3 tracking-tight">
             Todo Listo
           </h1>
-          <p className="text-base text-muted-foreground mb-10 max-w-sm mx-auto leading-relaxed">
+          <p className="text-base text-muted-foreground mb-8 max-w-sm mx-auto leading-relaxed">
             Tu perfil está configurado. Empieza a registrar jornadas y verifica
             que tu empleador calcule correctamente tus horas extra.
           </p>
@@ -133,7 +136,7 @@ export default function SetupPage() {
             <Link to="/registrar" className="w-full">
               <Button
                 size="lg"
-                className="w-full h-16 text-lg font-bold uppercase tracking-widest"
+                className="w-full h-14 text-lg font-semibold rounded-xl"
               >
                 Registrar mi primera jornada
               </Button>
@@ -146,8 +149,8 @@ export default function SetupPage() {
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-8 md:py-16 pb-32">
-      <div className="mb-12 text-center animate-in fade-in slide-in-from-top-4 duration-500">
-        <h1 className="font-heading text-4xl sm:text-5xl font-black uppercase tracking-tighter mb-4">
+      <div className="mb-10 text-center">
+        <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight mb-3">
           Configuración
         </h1>
         <p className="text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
@@ -156,54 +159,54 @@ export default function SetupPage() {
         </p>
       </div>
 
-      <div className="mb-10 flex items-center justify-center gap-3">
+      <div className="mb-8 flex items-center justify-center gap-2">
         {(["targets", "pay", "rules"] as SetupStep[]).map((step, index) => (
           <div key={step} className="flex items-center">
             <div
               className={cn(
-                "flex size-10 items-center justify-center font-bold transition-all duration-500 ease-spring",
+                "flex size-9 items-center justify-center font-bold text-sm transition-all duration-500 ease-spring rounded-full",
                 currentStep === step
-                  ? "bg-foreground text-background scale-110"
-                  : "bg-secondary text-secondary-foreground"
+                  ? "bg-primary text-primary-foreground scale-110 shadow-sm"
+                  : "bg-secondary text-muted-foreground"
               )}
             >
               {currentStep === step ? (
-                <Check className="size-5" strokeWidth={3} />
+                <Check className="size-4" strokeWidth={2.5} />
               ) : (
                 index + 1
               )}
             </div>
-            {index < 2 && <div className="w-8 sm:w-16 h-1 bg-secondary mx-3" />}
+            {index < 2 && (
+              <div className="w-6 sm:w-12 h-1 bg-secondary mx-2 rounded-full" />
+            )}
           </div>
         ))}
       </div>
 
-      <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 ease-spring">
+      <div>
         {currentStep === "targets" && (
-          <div className="border border-foreground/10 p-6 sm:p-10">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="p-3 bg-secondary">
-                <Clock className="size-6 text-foreground" strokeWidth={2} />
+          <div className="bg-card rounded-2xl border border-border p-6 sm:p-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="p-3 bg-primary/10 rounded-xl text-primary">
+                <Clock className="size-6" strokeWidth={2} />
               </div>
               <div>
-                <h2 className="font-heading text-2xl font-black uppercase tracking-tighter">
+                <h2 className="font-heading text-xl font-bold tracking-tight">
                   Horas Objetivo
                 </h2>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Cuántas horas trabajas cada día.
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-col gap-px bg-foreground/10 border border-foreground/10">
+            <div className="flex flex-col gap-2">
               {DAYS_OF_WEEK.map((day) => (
                 <div
                   key={day.key}
-                  className="flex items-center justify-between p-4 bg-background hover:bg-secondary/20 transition-colors"
+                  className="flex items-center justify-between p-3.5 bg-secondary/30 rounded-xl hover:bg-secondary/50 transition-colors"
                 >
-                  <span className="font-bold uppercase tracking-widest text-sm">
-                    {day.label}
-                  </span>
+                  <span className="font-semibold text-sm">{day.label}</span>
                   <div className="w-24 relative">
                     <NumberInput
                       min="0"
@@ -213,9 +216,9 @@ export default function SetupPage() {
                       onValueChange={(value) =>
                         handleTargetChange(day.key, value)
                       }
-                      className="h-12 bg-transparent border border-foreground/10 font-black text-center shadow-none focus-visible:ring-1 focus-visible:ring-foreground"
+                      className="h-10 bg-background border-border font-semibold text-center rounded-lg shadow-none focus-visible:ring-2 focus-visible:ring-primary/30"
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground pointer-events-none">
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground pointer-events-none">
                       h
                     </span>
                   </div>
@@ -223,44 +226,41 @@ export default function SetupPage() {
               ))}
             </div>
 
-            <div className="mt-10 flex justify-end">
+            <div className="mt-8 flex justify-end">
               <Button
                 size="lg"
-                className="h-14 px-8 font-bold uppercase tracking-widest"
+                className="h-12 px-6 font-semibold rounded-xl"
                 onClick={() => setCurrentStep("pay")}
               >
-                Siguiente <ChevronRight className="ml-2 size-5" />
+                Siguiente <ChevronRight className="ml-2 size-4" />
               </Button>
             </div>
           </div>
         )}
 
         {currentStep === "pay" && (
-          <div className="border border-foreground/10 p-6 sm:p-10">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="p-3 bg-secondary">
-                <DollarSign
-                  className="size-6 text-foreground"
-                  strokeWidth={2}
-                />
+          <div className="bg-card rounded-2xl border border-border p-6 sm:p-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="p-3 bg-accent/10 rounded-xl text-accent">
+                <DollarSign className="size-6" strokeWidth={2} />
               </div>
               <div>
-                <h2 className="font-heading text-2xl font-black uppercase tracking-tighter">
+                <h2 className="font-heading text-xl font-bold tracking-tight">
                   Salario
                 </h2>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Para estimar pagos extra.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
-                    Base
+                  <div className="text-xs font-semibold text-muted-foreground mb-2 block">
+                    Base de pago
                   </div>
-                  <div className="flex flex-col gap-px bg-foreground/10 border border-foreground/10">
+                  <div className="flex flex-col gap-1.5">
                     {PAY_BASIS_OPTIONS.map((opt) => (
                       <button
                         type="button"
@@ -272,10 +272,10 @@ export default function SetupPage() {
                           }))
                         }
                         className={cn(
-                          "text-xs font-black uppercase tracking-widest p-3 text-left transition-colors",
+                          "text-sm font-medium p-3 text-left transition-all rounded-xl border",
                           draftPaySettings.basis === opt.value
-                            ? "bg-foreground text-background"
-                            : "bg-background hover:bg-secondary/20"
+                            ? "border-primary bg-primary/5 text-primary shadow-sm"
+                            : "border-border hover:bg-secondary/50 text-muted-foreground"
                         )}
                       >
                         {opt.label}
@@ -284,10 +284,10 @@ export default function SetupPage() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
+                  <div className="text-xs font-semibold text-muted-foreground mb-2 block">
                     Moneda
                   </div>
-                  <div className="flex flex-col gap-px bg-foreground/10 border border-foreground/10">
+                  <div className="flex flex-col gap-1.5">
                     {CURRENCY_OPTIONS.map((opt) => (
                       <button
                         type="button"
@@ -299,10 +299,10 @@ export default function SetupPage() {
                           }))
                         }
                         className={cn(
-                          "text-xs font-black uppercase tracking-widest p-3 text-left transition-colors",
+                          "text-sm font-medium p-3 text-left transition-all rounded-xl border",
                           draftPaySettings.currency === opt.value
-                            ? "bg-foreground text-background"
-                            : "bg-background hover:bg-secondary/20"
+                            ? "border-primary bg-primary/5 text-primary shadow-sm"
+                            : "border-border hover:bg-secondary/50 text-muted-foreground"
                         )}
                       >
                         {opt.label}
@@ -313,7 +313,7 @@ export default function SetupPage() {
               </div>
 
               <div>
-                <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
+                <div className="text-xs font-semibold text-muted-foreground mb-2 block">
                   Monto Base
                 </div>
                 <div className="relative">
@@ -328,14 +328,14 @@ export default function SetupPage() {
                         amount: value,
                       }))
                     }
-                    className="h-16 pl-12 font-black text-xl shadow-none border-foreground/10 focus-visible:ring-1 focus-visible:ring-foreground"
+                    className="h-14 pl-12 font-bold text-xl rounded-xl shadow-none border-border focus-visible:ring-2 focus-visible:ring-primary/30"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
+                  <div className="text-xs font-semibold text-muted-foreground mb-2 block">
                     Bonos Fijos
                   </div>
                   <NumberInput
@@ -348,14 +348,14 @@ export default function SetupPage() {
                         allowances: value,
                       }))
                     }
-                    className="h-14 font-bold shadow-none border-foreground/10 focus-visible:ring-1 focus-visible:ring-foreground"
+                    className="h-12 font-semibold rounded-xl shadow-none border-border focus-visible:ring-2 focus-visible:ring-primary/30"
                   />
                 </div>
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
-                    Mostrar
+                  <div className="text-xs font-semibold text-muted-foreground mb-2 block">
+                    Mostrar salario
                   </div>
-                  <div className="flex flex-col gap-px bg-foreground/10 border border-foreground/10">
+                  <div className="flex flex-col gap-1.5">
                     {DISPLAY_MODE_OPTIONS.map((opt) => (
                       <button
                         type="button"
@@ -367,10 +367,10 @@ export default function SetupPage() {
                           }))
                         }
                         className={cn(
-                          "text-[10px] font-black uppercase tracking-widest p-3 text-left transition-colors",
+                          "text-xs font-medium p-2.5 text-left transition-all rounded-xl border",
                           draftPaySettings.salaryDisplayMode === opt.value
-                            ? "bg-foreground text-background"
-                            : "bg-background hover:bg-secondary/20"
+                            ? "border-primary bg-primary/5 text-primary shadow-sm"
+                            : "border-border hover:bg-secondary/50 text-muted-foreground"
                         )}
                       >
                         {opt.label}
@@ -381,98 +381,96 @@ export default function SetupPage() {
               </div>
             </div>
 
-            <div className="mt-10 flex justify-between gap-4">
+            <div className="mt-8 flex justify-between gap-4">
               <Button
                 size="lg"
                 variant="ghost"
-                className="h-14 px-8 font-bold uppercase tracking-widest"
+                className="h-12 px-6 font-semibold rounded-xl"
                 onClick={() => setCurrentStep("targets")}
               >
-                <ArrowLeft className="mr-2 size-5" /> Atrás
+                <ArrowLeft className="mr-2 size-4" /> Atrás
               </Button>
               <Button
                 size="lg"
-                className="h-14 px-8 font-bold uppercase tracking-widest"
+                className="h-12 px-6 font-semibold rounded-xl"
                 onClick={() => setCurrentStep("rules")}
               >
-                Siguiente <ChevronRight className="ml-2 size-5" />
+                Siguiente <ChevronRight className="ml-2 size-4" />
               </Button>
             </div>
           </div>
         )}
 
         {currentStep === "rules" && (
-          <div className="border border-foreground/10 p-6 sm:p-10">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="p-3 bg-secondary">
-                <Calculator
-                  className="size-6 text-foreground"
-                  strokeWidth={2}
-                />
+          <div className="bg-card rounded-2xl border border-border p-6 sm:p-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="p-3 bg-secondary rounded-xl text-secondary-foreground">
+                <Calculator className="size-6" strokeWidth={2} />
               </div>
               <div>
-                <h2 className="font-heading text-2xl font-black uppercase tracking-tighter">
+                <h2 className="font-heading text-xl font-bold tracking-tight">
                   Reglas Laborales
                 </h2>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Leyes de tu país.
                 </p>
               </div>
             </div>
 
-            <div className="p-4 bg-secondary/20 border border-foreground/10 flex gap-3 mb-6">
-              <Check className="size-5 shrink-0 mt-0.5" strokeWidth={3} />
-              <p className="text-sm font-bold text-foreground">
+            <div className="p-4 bg-primary/5 border border-primary/10 rounded-xl flex gap-3 mb-6">
+              <Check
+                className="size-5 shrink-0 mt-0.5 text-primary"
+                strokeWidth={2.5}
+              />
+              <p className="text-sm font-medium text-foreground">
                 Reglas de Colombia cargadas. Se aplicarán automáticamente a tus
                 registros para calcular recargos nocturnos, horas extra y
                 dominicales/festivas.
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {ruleSets.map((ruleSet) => (
                 <button
                   type="button"
                   key={ruleSet.id}
                   className={cn(
-                    "p-5 border cursor-pointer transition-all duration-300 flex items-center justify-between text-left w-full",
+                    "p-4 border cursor-pointer transition-all duration-300 flex items-center justify-between text-left w-full rounded-xl",
                     selectedRuleSetId === ruleSet.id
-                      ? "border-foreground bg-foreground/5"
-                      : "border-foreground/10 bg-background hover:bg-secondary/20"
+                      ? "border-primary bg-primary/5 shadow-sm"
+                      : "border-border bg-card hover:bg-secondary/30"
                   )}
                   onClick={() => setSelectedRuleSetId(ruleSet.id)}
                 >
                   <div>
-                    <p className="font-extrabold text-lg uppercase tracking-tighter">
-                      {ruleSet.name}
-                    </p>
-                    <p className="text-xs font-bold text-muted-foreground mt-1">
+                    <p className="font-bold text-base">{ruleSet.name}</p>
+                    <p className="text-xs font-medium text-muted-foreground mt-1">
                       Desde: {ruleSet.effectiveFrom}
                     </p>
                   </div>
                   {selectedRuleSetId === ruleSet.id && (
-                    <div className="bg-foreground text-background p-1.5">
-                      <Check className="size-4" strokeWidth={3} />
+                    <div className="bg-primary text-primary-foreground p-1.5 rounded-lg">
+                      <Check className="size-4" strokeWidth={2.5} />
                     </div>
                   )}
                 </button>
               ))}
             </div>
 
-            <div className="mt-10 flex flex-col sm:flex-row justify-between gap-4">
+            <div className="mt-8 flex flex-col sm:flex-row justify-between gap-4">
               <Button
                 size="lg"
                 variant="ghost"
-                className="h-14 px-8 font-bold uppercase tracking-widest"
+                className="h-12 px-6 font-semibold rounded-xl"
                 onClick={() => setCurrentStep("pay")}
               >
-                <ArrowLeft className="mr-2 size-5" /> Atrás
+                <ArrowLeft className="mr-2 size-4" /> Atrás
               </Button>
               <Button
                 size="lg"
                 onClick={handleSaveSetup}
                 disabled={isSaving}
-                className="h-14 px-8 font-bold uppercase tracking-widest"
+                className="h-12 px-6 font-semibold rounded-xl"
               >
                 {isSaving ? "Guardando..." : "Finalizar y Comenzar"}
               </Button>

@@ -22,11 +22,11 @@ const RootComponent = () => (
       disableTransitionOnChange
       storageKey="vite-ui-theme"
     >
-      <div className="flex min-h-svh flex-col bg-background text-foreground font-sans antialiased selection:bg-foreground selection:text-background">
+      <div className="flex min-h-svh flex-col bg-background text-foreground font-sans antialiased selection:bg-primary/30 selection:text-foreground">
         <Header />
 
-        {/* Main content area - brutalist clean padding */}
-        <main className="flex-1 w-full flex flex-col pt-14 md:pt-16 pb-16 md:pb-0">
+        {/* Main content area */}
+        <main className="flex-1 w-full flex flex-col pt-16 md:pt-20 pb-24 md:pb-8">
           <Outlet />
         </main>
       </div>
@@ -53,12 +53,12 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         name: "description",
       },
       {
-        content: "#ffffff",
+        content: "#faf8f5",
         media: "(prefers-color-scheme: light)",
         name: "theme-color",
       },
       {
-        content: "#000000",
+        content: "#1a1f2e",
         media: "(prefers-color-scheme: dark)",
         name: "theme-color",
       },

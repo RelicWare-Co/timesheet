@@ -111,48 +111,50 @@ export default function SettingsPage() {
   if (!settings) {
     return (
       <div className="container mx-auto px-4 py-16 text-center max-w-xl">
-        <h2 className="font-heading text-4xl font-black uppercase mb-4 tracking-tighter">
-          Configura tu perfil
-        </h2>
-        <p className="text-base text-muted-foreground mb-8 leading-relaxed">
-          Define tu jornada semanal, salario base y moneda para que Timesheet
-          calcule automáticamente tus horas extra y recargos según la ley
-          colombiana. Los datos se guardan solo en tu dispositivo.
-        </p>
-        <Link to="/configuracion/inicial">
-          <Button
-            size="lg"
-            className="h-16 w-full text-xl font-bold uppercase tracking-widest"
-          >
-            Ir a configuración
-          </Button>
-        </Link>
+        <div className="bg-card rounded-2xl border border-border p-8 md:p-12">
+          <h2 className="font-heading text-3xl font-bold mb-3 tracking-tight">
+            Configura tu perfil
+          </h2>
+          <p className="text-base text-muted-foreground mb-8 leading-relaxed">
+            Define tu jornada semanal, salario base y moneda para que Timesheet
+            calcule automáticamente tus horas extra y recargos según la ley
+            colombiana. Los datos se guardan solo en tu dispositivo.
+          </p>
+          <Link to="/configuracion/inicial">
+            <Button
+              size="lg"
+              className="h-14 w-full text-lg font-semibold rounded-xl"
+            >
+              Ir a configuración
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-8 md:py-16 pb-32">
+    <div className="container mx-auto max-w-5xl px-4 py-8 md:py-16 pb-28 md:pb-16">
       <Link
         to="/"
-        className="inline-flex items-center text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors mb-12 group"
+        className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-8 group"
       >
         <ArrowLeft className="mr-2 size-4 group-hover:-translate-x-1 transition-transform" />
         Volver
       </Link>
 
-      <div className="mb-16">
-        <h1 className="text-5xl sm:text-7xl font-black tracking-tighter uppercase leading-[0.85] mb-4">
-          Ajustes.
+      <div className="mb-10">
+        <h1 className="font-heading text-4xl sm:text-5xl font-bold tracking-tight mb-2">
+          Ajustes
         </h1>
-        <p className="text-xl font-bold uppercase tracking-widest text-muted-foreground">
+        <p className="text-lg font-medium text-muted-foreground">
           Reglas, salario y datos
         </p>
       </div>
 
-      <div className="grid gap-12 md:grid-cols-12">
+      <div className="grid gap-8 md:grid-cols-12">
         <div className="md:col-span-4 lg:col-span-3">
-          <nav className="flex flex-col gap-px bg-foreground/10 border border-foreground/10">
+          <nav className="flex flex-col gap-1.5">
             {(
               [
                 ["targets", "Horas Objetivo"],
@@ -168,10 +170,10 @@ export default function SettingsPage() {
                   key={tab}
                   onClick={() => setActiveTab(tab as SettingsTab)}
                   className={cn(
-                    "text-left p-4 uppercase tracking-widest text-xs font-black transition-colors",
+                    "text-left px-4 py-3 text-sm font-medium transition-all rounded-xl",
                     isActive
-                      ? "bg-foreground text-background"
-                      : "bg-background text-foreground hover:bg-secondary/50"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-card text-muted-foreground hover:text-foreground hover:bg-secondary/50 border border-border"
                   )}
                 >
                   {label}
@@ -183,19 +185,17 @@ export default function SettingsPage() {
 
         <div className="md:col-span-8 lg:col-span-9">
           {activeTab === "targets" && (
-            <div className="border border-foreground/10 p-6 md:p-12">
-              <h2 className="text-2xl font-black tracking-tighter uppercase mb-8">
+            <div className="bg-card rounded-2xl border border-border p-6 md:p-8">
+              <h2 className="font-heading text-xl font-bold tracking-tight mb-6">
                 Horas Objetivo
               </h2>
-              <div className="flex flex-col gap-px bg-foreground/10 border border-foreground/10 mb-8">
+              <div className="flex flex-col gap-2 mb-6">
                 {DAYS_OF_WEEK_ES.map((day) => (
                   <div
                     key={day.key}
-                    className="flex items-center justify-between p-4 bg-background hover:bg-secondary/20 transition-colors"
+                    className="flex items-center justify-between p-3.5 bg-secondary/30 rounded-xl hover:bg-secondary/50 transition-colors"
                   >
-                    <span className="font-black uppercase tracking-widest text-sm">
-                      {day.label}
-                    </span>
+                    <span className="font-semibold text-sm">{day.label}</span>
                     <div className="w-24 relative">
                       <NumberInput
                         min="0"
@@ -207,7 +207,7 @@ export default function SettingsPage() {
                             [day.key]: value,
                           } as Partial<WeeklyTargetHours>)
                         }
-                        className="h-12 bg-transparent border border-foreground/10 font-black text-center rounded-none shadow-none focus-visible:ring-1 focus-visible:ring-foreground"
+                        className="h-10 bg-background border-border font-semibold text-center rounded-lg shadow-none focus-visible:ring-2 focus-visible:ring-primary/30"
                       />
                     </div>
                   </div>
@@ -217,17 +217,17 @@ export default function SettingsPage() {
           )}
 
           {activeTab === "pay" && (
-            <div className="border border-foreground/10 p-6 md:p-12">
-              <h2 className="text-2xl font-black tracking-tighter uppercase mb-8">
+            <div className="bg-card rounded-2xl border border-border p-6 md:p-8">
+              <h2 className="font-heading text-xl font-bold tracking-tight mb-6">
                 Salario
               </h2>
-              <div className="space-y-6 mb-8">
+              <div className="space-y-5 mb-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
-                      Base
+                    <div className="text-xs font-semibold text-muted-foreground mb-2 block">
+                      Base de pago
                     </div>
-                    <div className="flex flex-col gap-1 border border-foreground/10 p-1">
+                    <div className="flex flex-col gap-1.5">
                       {PAY_BASIS_OPTIONS.map((opt) => (
                         <button
                           type="button"
@@ -236,10 +236,10 @@ export default function SettingsPage() {
                             updatePaySettings({ basis: opt.value })
                           }
                           className={cn(
-                            "text-xs font-black uppercase tracking-widest p-3 text-left transition-colors",
+                            "text-sm font-medium p-3 text-left transition-all rounded-xl border",
                             paySettings.basis === opt.value
-                              ? "bg-foreground text-background"
-                              : "hover:bg-secondary/20"
+                              ? "border-primary bg-primary/5 text-primary shadow-sm"
+                              : "border-border hover:bg-secondary/50 text-muted-foreground"
                           )}
                         >
                           {opt.label}
@@ -248,10 +248,10 @@ export default function SettingsPage() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
+                    <div className="text-xs font-semibold text-muted-foreground mb-2 block">
                       Moneda
                     </div>
-                    <div className="flex flex-col gap-1 border border-foreground/10 p-1">
+                    <div className="flex flex-col gap-1.5">
                       {CURRENCY_OPTIONS.map((opt) => (
                         <button
                           type="button"
@@ -260,10 +260,10 @@ export default function SettingsPage() {
                             updatePaySettings({ currency: opt.value })
                           }
                           className={cn(
-                            "text-xs font-black uppercase tracking-widest p-3 text-left transition-colors",
+                            "text-sm font-medium p-3 text-left transition-all rounded-xl border",
                             paySettings.currency === opt.value
-                              ? "bg-foreground text-background"
-                              : "hover:bg-secondary/20"
+                              ? "border-primary bg-primary/5 text-primary shadow-sm"
+                              : "border-border hover:bg-secondary/50 text-muted-foreground"
                           )}
                         >
                           {opt.label}
@@ -274,7 +274,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
+                  <div className="text-xs font-semibold text-muted-foreground mb-2 block">
                     Monto Base
                   </div>
                   <NumberInput
@@ -284,13 +284,13 @@ export default function SettingsPage() {
                     onValueChange={(value) =>
                       updatePaySettings({ amount: value })
                     }
-                    className="h-16 text-3xl font-black rounded-none shadow-none border-foreground/10 focus-visible:ring-1 focus-visible:ring-foreground"
+                    className="h-14 text-xl font-bold rounded-xl shadow-none border-border focus-visible:ring-2 focus-visible:ring-primary/30"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
+                    <div className="text-xs font-semibold text-muted-foreground mb-2 block">
                       Bonos
                     </div>
                     <NumberInput
@@ -300,14 +300,14 @@ export default function SettingsPage() {
                       onValueChange={(value) =>
                         updatePaySettings({ allowances: value })
                       }
-                      className="h-14 font-black rounded-none shadow-none border-foreground/10 focus-visible:ring-1 focus-visible:ring-foreground"
+                      className="h-12 font-semibold rounded-xl shadow-none border-border focus-visible:ring-2 focus-visible:ring-primary/30"
                     />
                   </div>
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 block">
+                    <div className="text-xs font-semibold text-muted-foreground mb-2 block">
                       Mostrar
                     </div>
-                    <div className="flex flex-col gap-1 border border-foreground/10 p-1">
+                    <div className="flex flex-col gap-1.5">
                       {DISPLAY_MODE_OPTIONS.map((opt) => (
                         <button
                           type="button"
@@ -318,10 +318,10 @@ export default function SettingsPage() {
                             })
                           }
                           className={cn(
-                            "text-[10px] font-black uppercase tracking-widest p-2 text-left transition-colors",
+                            "text-xs font-medium p-2.5 text-left transition-all rounded-xl border",
                             paySettings.salaryDisplayMode === opt.value
-                              ? "bg-foreground text-background"
-                              : "hover:bg-secondary/20"
+                              ? "border-primary bg-primary/5 text-primary shadow-sm"
+                              : "border-border hover:bg-secondary/50 text-muted-foreground"
                           )}
                         >
                           {opt.label}
@@ -335,57 +335,57 @@ export default function SettingsPage() {
           )}
 
           {activeTab === "rules" && (
-            <div className="border border-foreground/10 p-6 md:p-12">
-              <h2 className="text-2xl font-black tracking-tighter uppercase mb-8">
+            <div className="bg-card rounded-2xl border border-border p-6 md:p-8">
+              <h2 className="font-heading text-xl font-bold tracking-tight mb-6">
                 Reglas
               </h2>
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {ruleSets.map((rs) => (
                   <div
                     key={rs.id}
-                    className="border border-foreground/10 p-6 bg-background"
+                    className="border border-border rounded-xl p-5 bg-card hover:shadow-sm transition-shadow"
                   >
-                    <div className="flex items-center gap-4 mb-6 pb-4 border-b border-foreground/10">
-                      <h3 className="font-black text-xl tracking-tighter uppercase">
-                        {rs.name}
-                      </h3>
+                    <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border">
+                      <h3 className="font-bold text-base">{rs.name}</h3>
                       {settings?.activeRuleSetId === rs.id && (
-                        <span className="bg-foreground text-background px-2 py-1 text-[9px] font-black uppercase tracking-widest">
+                        <span className="bg-primary/10 text-primary px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide rounded-full">
                           Activo
                         </span>
                       )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                    <div className="grid grid-cols-2 gap-y-4 gap-x-4">
                       <div>
-                        <p className="text-[9px] font-black uppercase tracking-widest opacity-50 mb-1">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
                           Diurno
                         </p>
-                        <p className="font-black">
+                        <p className="font-semibold">
                           {rs.daytimeStart} - {rs.daytimeEnd}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[9px] font-black uppercase tracking-widest opacity-50 mb-1">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
                           Nocturno
                         </p>
-                        <p className="font-black">
+                        <p className="font-semibold">
                           {rs.nighttimeStart} - {rs.nighttimeEnd}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[9px] font-black uppercase tracking-widest opacity-50 mb-1">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
                           Recargo Nocturno
                         </p>
-                        <p className="font-black">
+                        <p className="font-semibold">
                           +{rs.ordinaryNightSurchargePct}%
                         </p>
                       </div>
                       <div>
-                        <p className="text-[9px] font-black uppercase tracking-widest opacity-50 mb-1">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
                           Extra Diurna
                         </p>
-                        <p className="font-black">+{rs.daytimeOvertimePct}%</p>
+                        <p className="font-semibold">
+                          +{rs.daytimeOvertimePct}%
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -395,36 +395,36 @@ export default function SettingsPage() {
           )}
 
           {activeTab === "logs" && (
-            <div className="border border-foreground/10 p-6 md:p-12">
-              <h2 className="text-2xl font-black tracking-tighter uppercase mb-8">
+            <div className="bg-card rounded-2xl border border-border p-6 md:p-8">
+              <h2 className="font-heading text-xl font-bold tracking-tight mb-6">
                 Historial
               </h2>
 
               {logs.length === 0 ? (
-                <div className="border border-dashed border-foreground/10 p-16 text-center">
-                  <p className="text-sm font-black uppercase tracking-widest opacity-50">
+                <div className="border border-dashed border-border rounded-xl p-16 text-center bg-secondary/20">
+                  <p className="text-sm font-medium text-muted-foreground">
                     Sin registros
                   </p>
                 </div>
               ) : (
-                <div className="flex flex-col gap-px bg-foreground/10 border border-foreground/10">
+                <div className="flex flex-col gap-2">
                   {logs.map((log) => (
                     <div
                       key={log.id}
-                      className="flex items-center justify-between p-4 bg-background hover:bg-secondary/20 transition-colors group"
+                      className="flex items-center justify-between p-4 bg-secondary/30 rounded-xl hover:bg-secondary/50 transition-colors group"
                     >
-                      <div className="flex items-center gap-6">
-                        <div className="text-3xl font-black tracking-tighter w-12 text-center">
+                      <div className="flex items-center gap-4">
+                        <div className="text-2xl font-bold tracking-tight w-10 text-center font-heading text-muted-foreground">
                           {parseDateKey(log.date).getDate()}
                         </div>
                         <div>
-                          <p className="font-black text-lg uppercase tracking-tighter">
+                          <p className="font-semibold text-base capitalize">
                             {parseDateKey(log.date).toLocaleDateString(
                               "es-CO",
                               { month: "short", weekday: "long" }
                             )}
                           </p>
-                          <p className="text-[10px] font-black uppercase tracking-widest opacity-50 mt-1">
+                          <p className="text-xs font-medium text-muted-foreground mt-0.5">
                             {getDayTypeLabel(log.dayType)} ·{" "}
                             {log.calculationSnapshot
                               ? formatMinutesAsHours(
@@ -437,10 +437,10 @@ export default function SettingsPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-muted-foreground hover:text-background hover:bg-foreground rounded-none h-12 w-12 transition-colors"
+                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl h-10 w-10 transition-colors"
                         onClick={() => setLogToDelete(log)}
                       >
-                        <Trash2 className="size-5" />
+                        <Trash2 className="size-4" />
                       </Button>
                     </div>
                   ))}
@@ -452,14 +452,14 @@ export default function SettingsPage() {
       </div>
 
       {activeTab !== "logs" && activeTab !== "rules" && (
-        <div className="fixed bottom-0 left-0 w-full bg-background border-t border-foreground/10 p-4 z-50 md:hidden">
+        <div className="fixed bottom-0 left-0 w-full bg-card/90 backdrop-blur-md border-t border-border p-4 z-50 md:hidden">
           <Button
             size="lg"
             onClick={handleSaveAll}
             disabled={isSaving}
-            className="h-14 w-full font-black uppercase tracking-widest text-background bg-foreground"
+            className="h-12 w-full font-semibold rounded-xl shadow-sm"
           >
-            <Save className="mr-3 size-5" />
+            <Save className="mr-2 size-4" />
             {isSaving ? "Guardando..." : "Guardar cambios"}
           </Button>
         </div>
@@ -469,12 +469,12 @@ export default function SettingsPage() {
         open={logToDelete !== null}
         onOpenChange={(o) => !o && setLogToDelete(null)}
       >
-        <AlertDialogContent className="rounded-none border border-foreground/10 p-8 shadow-none bg-background">
+        <AlertDialogContent className="rounded-2xl border border-border p-6 shadow-lg bg-card">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl font-black tracking-tighter uppercase mb-2">
+            <AlertDialogTitle className="font-heading text-xl font-bold tracking-tight mb-2">
               Eliminar registro
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-sm font-medium tracking-normal opacity-80 normal-case">
+            <AlertDialogDescription className="text-sm font-medium opacity-80 leading-relaxed">
               Esta acción elimina permanentemente el registro del{" "}
               {logToDelete
                 ? parseDateKey(logToDelete.date).toLocaleDateString("es-CO", {
@@ -486,17 +486,17 @@ export default function SettingsPage() {
               . No se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="mt-8 flex flex-col sm:flex-row gap-4 sm:space-x-0">
+          <AlertDialogFooter className="mt-6 flex flex-col sm:flex-row gap-3 sm:space-x-0">
             <AlertDialogCancel
               disabled={isDeletingLog}
-              className="rounded-none h-14 w-full sm:w-auto font-black uppercase tracking-widest border border-foreground/10 bg-transparent"
+              className="h-12 w-full sm:w-auto font-semibold rounded-xl border border-border bg-transparent hover:bg-secondary"
             >
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={isDeletingLog}
               onClick={handleDeleteLog}
-              className="rounded-none h-14 w-full sm:w-auto font-black uppercase tracking-widest bg-foreground text-background shadow-none border border-foreground"
+              className="h-12 w-full sm:w-auto font-semibold rounded-xl bg-destructive text-destructive-foreground shadow-none hover:bg-destructive/90"
             >
               {isDeletingLog ? "Eliminando..." : "Sí, eliminar"}
             </AlertDialogAction>

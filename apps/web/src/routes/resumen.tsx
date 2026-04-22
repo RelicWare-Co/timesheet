@@ -78,13 +78,13 @@ const SummaryMetric = ({
   label: string;
   minutes: number;
 }) => (
-  <div className="bg-background p-4 md:p-5">
-    <p className="text-[10px] font-black uppercase tracking-[0.35em] text-muted-foreground">
+  <div className="bg-card p-4 md:p-5 rounded-xl">
+    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
       {label}
     </p>
     <p
       className={cn(
-        "mt-3 text-2xl sm:text-3xl font-black tracking-tighter tabular-nums",
+        "mt-2 text-2xl sm:text-3xl font-bold tracking-tight tabular-nums font-heading",
         minutes > 0 ? "text-foreground" : "text-muted-foreground/40"
       )}
     >
@@ -112,49 +112,49 @@ const DailyLogSummaryPanel = ({
     snapshot.ordinaryNightMinutes + snapshot.overtimeNightMinutes;
 
   return (
-    <section className="mb-16 overflow-hidden border border-foreground/10 bg-background animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="grid gap-px bg-foreground/10 lg:grid-cols-[1.25fr_0.75fr]">
-        <div className="bg-background p-6 md:p-8">
-          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-muted-foreground">
+    <section className="mb-10 overflow-hidden rounded-2xl border border-border bg-card shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="grid gap-4 p-5 md:p-6 lg:grid-cols-[1.25fr_0.75fr]">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-3">
             {label}
           </p>
-          <div className="mt-4 flex flex-col gap-3">
-            <h2 className="font-heading text-3xl sm:text-4xl font-black tracking-tighter uppercase leading-[0.9]">
+          <div className="flex flex-col gap-2">
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight capitalize">
               {summaryDateLabel}
             </h2>
-            <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+            <p className="text-sm font-medium text-muted-foreground">
               {getDayTypeFullLabel(log.dayType)} ·{" "}
               {formatMinutesAsHours(snapshot.totalWorkedMinutes)} trabajadas
             </p>
           </div>
           {log.note ? (
-            <p className="mt-6 max-w-2xl bg-secondary/20 p-4 text-sm leading-6 text-muted-foreground">
+            <p className="mt-4 p-4 rounded-xl bg-secondary/40 text-sm leading-relaxed text-muted-foreground">
               {log.note}
             </p>
           ) : null}
         </div>
 
-        <div className="grid gap-px bg-foreground/10 sm:grid-cols-2">
-          <div className="bg-foreground p-6 text-background">
-            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-background/70">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="bg-primary/10 rounded-xl p-5 border border-primary/10">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-primary/80">
               Horas extra
             </p>
-            <p className="mt-4 text-4xl sm:text-5xl font-black tracking-tighter tabular-nums">
+            <p className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight tabular-nums font-heading text-primary">
               {formatMinutesAsHours(snapshot.totalOvertimeMinutes)}
             </p>
           </div>
-          <div className="bg-background p-6">
-            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-muted-foreground">
+          <div className="bg-secondary/40 rounded-xl p-5">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               Horas nocturnas
             </p>
-            <p className="mt-4 text-4xl sm:text-5xl font-black tracking-tighter tabular-nums">
+            <p className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight tabular-nums font-heading">
               {formatMinutesAsHours(totalNightMinutes)}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-px bg-foreground/10 md:grid-cols-3">
+      <div className="grid gap-px bg-border md:grid-cols-3 mx-5 md:mx-6 mb-4 rounded-xl overflow-hidden border border-border">
         <SummaryMetric
           label="Total trabajado"
           minutes={snapshot.totalWorkedMinutes}
@@ -169,13 +169,13 @@ const DailyLogSummaryPanel = ({
       <button
         type="button"
         onClick={() => setShowBreakdown(!showBreakdown)}
-        className="w-full py-3 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-secondary/20 transition-colors border-t border-foreground/10"
+        className="w-full py-3 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-colors border-t border-border"
       >
         {showBreakdown ? "Ocultar desglose" : "Ver desglose detallado"}
       </button>
 
       {showBreakdown && (
-        <div className="grid gap-px bg-foreground/10 md:grid-cols-2 xl:grid-cols-4 animate-in fade-in duration-300">
+        <div className="grid gap-px bg-border md:grid-cols-2 xl:grid-cols-4 animate-in fade-in duration-300 mx-5 md:mx-6 mb-4 rounded-xl overflow-hidden border border-border">
           <SummaryMetric
             label="Diurna ordinaria"
             minutes={snapshot.ordinaryDayMinutes}
@@ -337,50 +337,52 @@ export default function ResumenPage() {
   if (!settings) {
     return (
       <div className="container mx-auto px-4 py-16 text-center max-w-xl">
-        <h2 className="font-heading text-4xl font-black uppercase mb-4 tracking-tighter">
-          Bienvenido
-        </h2>
-        <p className="text-base text-muted-foreground mb-8 leading-relaxed">
-          Configura tu perfil para empezar a registrar jornadas y calcular
-          automáticamente horas extra, recargos nocturnos y estimaciones de
-          salario según la ley laboral colombiana.
-        </p>
-        <Link to="/configuracion/inicial">
-          <Button
-            size="lg"
-            className="h-16 w-full text-xl font-bold uppercase tracking-widest"
-          >
-            Comenzar <ArrowRight className="ml-2" />
-          </Button>
-        </Link>
+        <div className="bg-card rounded-2xl border border-border p-8 md:p-12">
+          <h2 className="font-heading text-3xl font-bold mb-3 tracking-tight">
+            Bienvenido
+          </h2>
+          <p className="text-base text-muted-foreground mb-8 leading-relaxed">
+            Configura tu perfil para empezar a registrar jornadas y calcular
+            automáticamente horas extra, recargos nocturnos y estimaciones de
+            salario según la ley laboral colombiana.
+          </p>
+          <Link to="/configuracion/inicial">
+            <Button
+              size="lg"
+              className="h-14 w-full text-lg font-semibold rounded-xl"
+            >
+              Comenzar <ArrowRight className="ml-2" />
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-8 md:py-16 pb-32">
-      <div className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+    <div className="container mx-auto max-w-5xl px-4 py-8 md:py-16 pb-28 md:pb-16">
+      <div className="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
         <div>
-          <h1 className="text-5xl sm:text-7xl font-black tracking-tighter uppercase leading-[0.85] mb-4">
-            Resumen.
+          <h1 className="font-heading text-4xl sm:text-5xl font-bold tracking-tight mb-2">
+            Resumen
           </h1>
-          <p className="text-xl font-bold uppercase tracking-widest text-muted-foreground">
+          <p className="text-lg font-medium text-muted-foreground">
             {format(weekStart, "d MMM", { locale: es })} -{" "}
             {format(weekEnd, "d MMM", { locale: es })}
           </p>
         </div>
 
-        <div className="flex items-center border border-foreground/10 bg-background w-fit">
+        <div className="flex items-center bg-card border border-border rounded-xl w-fit shadow-sm">
           <button
             type="button"
-            className="p-3 hover:bg-foreground hover:text-background transition-colors active:scale-95"
+            className="p-2.5 hover:bg-secondary transition-colors active:scale-95 rounded-l-xl"
             onClick={() => setWeekOffset(weekOffset - 1)}
           >
-            <ChevronLeft className="size-6" />
+            <ChevronLeft className="size-5" />
           </button>
           <button
             type="button"
-            className="px-6 h-[50px] font-black uppercase tracking-widest text-sm border-x border-foreground/10 hover:bg-foreground hover:text-background transition-colors"
+            className="px-5 h-[44px] font-semibold text-sm border-x border-border hover:bg-secondary transition-colors"
             onClick={() => setWeekOffset(0)}
             disabled={weekOffset === 0}
           >
@@ -388,43 +390,43 @@ export default function ResumenPage() {
           </button>
           <button
             type="button"
-            className="p-3 hover:bg-foreground hover:text-background transition-colors active:scale-95"
+            className="p-2.5 hover:bg-secondary transition-colors active:scale-95 rounded-r-xl"
             onClick={() => setWeekOffset(weekOffset + 1)}
           >
-            <ChevronRight className="size-6" />
+            <ChevronRight className="size-5" />
           </button>
         </div>
       </div>
 
       {weeklyData && (
-        <div className="grid gap-px bg-foreground/10 border border-foreground/10 md:grid-cols-2 lg:grid-cols-4 mb-16">
-          <div className="bg-background p-6 hover:bg-secondary/20 transition-colors flex flex-col justify-between min-h-[160px]">
-            <span className="text-[10px] font-black uppercase tracking-widest opacity-50">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4 mb-10">
+          <div className="bg-card rounded-2xl border border-border p-5 hover:shadow-md hover:shadow-black/5 transition-shadow flex flex-col justify-between min-h-[140px]">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               Objetivo
             </span>
-            <p className="text-5xl font-black tracking-tighter">
+            <p className="text-4xl font-bold tracking-tight font-heading mt-2">
               {formatMinutesAsHours(Math.round(weeklyData.scheduledHours * 60))}
             </p>
           </div>
 
-          <div className="bg-background p-6 hover:bg-secondary/20 transition-colors flex flex-col justify-between min-h-[160px]">
-            <span className="text-[10px] font-black uppercase tracking-widest opacity-50">
+          <div className="bg-card rounded-2xl border border-border p-5 hover:shadow-md hover:shadow-black/5 transition-shadow flex flex-col justify-between min-h-[140px]">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               Trabajado
             </span>
-            <p className="text-5xl font-black tracking-tighter">
+            <p className="text-4xl font-bold tracking-tight font-heading mt-2">
               {formatMinutesAsHours(Math.round(weeklyData.workedHours * 60))}
             </p>
           </div>
 
-          <div className="bg-background p-6 hover:bg-secondary/20 transition-colors flex flex-col justify-between min-h-[160px]">
-            <span className="text-[10px] font-black uppercase tracking-widest opacity-50">
+          <div className="bg-card rounded-2xl border border-border p-5 hover:shadow-md hover:shadow-black/5 transition-shadow flex flex-col justify-between min-h-[140px]">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               Extras
             </span>
             <p
               className={cn(
-                "text-5xl font-black tracking-tighter",
+                "text-4xl font-bold tracking-tight font-heading mt-2",
                 weeklyData.overtimeHours > 0
-                  ? "text-foreground"
+                  ? "text-accent"
                   : "text-muted-foreground/30"
               )}
             >
@@ -432,11 +434,11 @@ export default function ResumenPage() {
             </p>
           </div>
 
-          <div className="bg-foreground text-background p-6 transition-colors flex flex-col justify-between min-h-[160px]">
-            <span className="text-[10px] font-black uppercase tracking-widest opacity-70">
+          <div className="bg-primary/10 rounded-2xl border border-primary/20 p-5 flex flex-col justify-between min-h-[140px]">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-primary/80">
               Estimado
             </span>
-            <p className="text-4xl font-black tracking-tighter truncate">
+            <p className="text-3xl font-bold tracking-tight font-heading mt-2 text-primary truncate">
               {paySettings.currency === "COP"
                 ? `$${weeklyData.estimatedPay.toLocaleString()}`
                 : `${paySettings.currency} ${weeklyData.estimatedPay.toFixed(2)}`}
@@ -455,20 +457,20 @@ export default function ResumenPage() {
         />
       )}
 
-      <div className="grid gap-16 lg:grid-cols-12">
+      <div className="grid gap-8 lg:grid-cols-12">
         {/* Balance */}
         <div className="lg:col-span-5">
-          <h2 className="text-xl font-black tracking-tighter uppercase mb-6 border-b border-foreground/10 pb-2">
+          <h2 className="text-lg font-bold tracking-tight mb-4 font-heading">
             Balance
           </h2>
           {weeklyData && (
-            <div className="space-y-8">
-              <div>
-                <div className="flex justify-between items-end mb-2">
-                  <span className="text-xs font-black uppercase tracking-widest opacity-50">
-                    Progreso
+            <div className="space-y-5">
+              <div className="bg-card rounded-2xl border border-border p-5">
+                <div className="flex justify-between items-end mb-3">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Progreso semanal
                   </span>
-                  <span className="text-3xl font-black">
+                  <span className="text-2xl font-bold font-heading">
                     {weeklyData.scheduledHours > 0
                       ? Math.round(
                           (weeklyData.workedHours / weeklyData.scheduledHours) *
@@ -478,9 +480,9 @@ export default function ResumenPage() {
                     %
                   </span>
                 </div>
-                <div className="h-4 w-full bg-foreground/10 border border-foreground/10">
+                <div className="h-3 w-full bg-secondary rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-foreground transition-all duration-1000 ease-out"
+                    className="h-full bg-primary transition-all duration-1000 ease-out rounded-full"
                     style={{
                       width: `${Math.min(100, weeklyData.scheduledHours > 0 ? (weeklyData.workedHours / weeklyData.scheduledHours) * 100 : 0)}%`,
                     }}
@@ -488,11 +490,18 @@ export default function ResumenPage() {
                 </div>
               </div>
 
-              <div className="p-6 border border-foreground/10 flex justify-between items-center bg-background">
-                <span className="text-xs font-black uppercase tracking-widest opacity-50">
+              <div className="p-5 rounded-2xl border border-border bg-card flex justify-between items-center">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Diferencia
                 </span>
-                <span className="font-black text-4xl tracking-tighter">
+                <span
+                  className={cn(
+                    "font-bold text-3xl tracking-tight font-heading",
+                    weeklyData.balanceHours >= 0
+                      ? "text-primary"
+                      : "text-destructive"
+                  )}
+                >
                   {weeklyData.balanceHours >= 0 ? "+" : ""}
                   {formatMinutesAsHours(
                     Math.round(weeklyData.balanceHours * 60)
@@ -505,47 +514,52 @@ export default function ResumenPage() {
 
         {/* Logs */}
         <div className="lg:col-span-7">
-          <div className="flex items-center justify-between border-b border-foreground/10 pb-2 mb-6">
-            <h2 className="text-xl font-black tracking-tighter uppercase">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold tracking-tight font-heading">
               Historial
             </h2>
           </div>
 
           {dailyLogs.length === 0 ? (
-            <div className="border border-foreground/10 border-dashed p-12 text-center">
-              <p className="text-sm font-black uppercase tracking-widest text-muted-foreground mb-4">
-                Sin registros
+            <div className="border border-dashed border-border rounded-2xl p-12 text-center bg-card/50">
+              <p className="text-sm font-medium text-muted-foreground mb-4">
+                Sin registros esta semana
               </p>
               <Link to="/registrar">
-                <Button className="rounded-none h-12 px-8 font-black uppercase tracking-widest">
+                <Button className="rounded-xl h-12 px-8 font-semibold">
                   Registrar
                 </Button>
               </Link>
             </div>
           ) : (
-            <div className="flex flex-col gap-px bg-foreground/10 border border-foreground/10">
+            <div className="flex flex-col gap-2">
               {dailyLogs.map((log) => (
                 <Link
                   key={log.id}
                   to="/registrar"
                   search={{ date: log.date }}
-                  className="bg-background p-4 flex items-center justify-between hover:bg-foreground hover:text-background transition-colors group"
+                  className="bg-card rounded-xl border border-border p-4 flex items-center justify-between hover:shadow-md hover:shadow-black/5 hover:border-primary/20 transition-all group"
                 >
-                  <div className="flex items-center gap-6">
-                    <div className="text-3xl font-black tracking-tighter w-12 text-center group-hover:text-background">
+                  <div className="flex items-center gap-4">
+                    <div className="text-2xl font-bold tracking-tight w-10 text-center font-heading text-muted-foreground group-hover:text-primary transition-colors">
                       {format(parseDateKey(log.date), "d", { locale: es })}
                     </div>
                     <div>
-                      <p className="font-black text-xl uppercase tracking-tighter">
+                      <p className="font-semibold text-lg capitalize">
                         {format(parseDateKey(log.date), "EEE", { locale: es })}
                       </p>
-                      <p className="text-[10px] font-black uppercase tracking-widest opacity-50">
-                        {getDayTypeLabel(log.dayType)}
+                      <p className="text-xs font-medium text-muted-foreground mt-0.5">
+                        {getDayTypeLabel(log.dayType)} ·{" "}
+                        {log.calculationSnapshot
+                          ? formatMinutesAsHours(
+                              log.calculationSnapshot.totalWorkedMinutes
+                            )
+                          : "--:--"}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-black tracking-tighter">
+                    <p className="text-xl font-bold tracking-tight font-heading">
                       {log.calculationSnapshot
                         ? formatMinutesAsHours(
                             log.calculationSnapshot.totalWorkedMinutes
@@ -554,7 +568,7 @@ export default function ResumenPage() {
                     </p>
                     {log.calculationSnapshot?.totalOvertimeMinutes &&
                     log.calculationSnapshot.totalOvertimeMinutes > 0 ? (
-                      <p className="text-[10px] font-black uppercase tracking-widest">
+                      <p className="text-[11px] font-semibold text-accent">
                         +
                         {formatMinutesAsHours(
                           log.calculationSnapshot.totalOvertimeMinutes

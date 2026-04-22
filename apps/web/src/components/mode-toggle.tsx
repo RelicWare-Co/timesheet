@@ -32,35 +32,35 @@ export const ModeToggle = () => {
           <Button
             variant="outline"
             size="icon"
-            className="border-foreground/20 hover:bg-foreground hover:text-background transition-colors"
+            className="border-border hover:bg-secondary hover:text-foreground transition-colors rounded-xl"
           />
         }
       >
         <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
         <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-        <span className="sr-only">Toggle theme</span>
+        <span className="sr-only">Cambiar tema</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="border-foreground/10 bg-background"
+        className="border-border bg-popover rounded-xl"
       >
         <DropdownMenuItem
           onClick={handleLightTheme}
-          className="gap-2 cursor-pointer font-medium"
+          className="gap-2 cursor-pointer font-medium rounded-lg"
         >
           <Sun className="size-4" />
           Claro
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={handleDarkTheme}
-          className="gap-2 cursor-pointer font-medium"
+          className="gap-2 cursor-pointer font-medium rounded-lg"
         >
           <Moon className="size-4" />
           Oscuro
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={handleSystemTheme}
-          className="gap-2 cursor-pointer font-medium"
+          className="gap-2 cursor-pointer font-medium rounded-lg"
         >
           <Laptop className="size-4" />
           Sistema

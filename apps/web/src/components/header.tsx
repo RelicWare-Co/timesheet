@@ -16,20 +16,22 @@ export default function Header() {
 
   return (
     <>
-      {/* Desktop Header - Minimalist Top Bar */}
-      <header className="hidden md:flex fixed top-0 left-0 z-50 w-full bg-background border-b border-foreground/10 h-16">
-        <div className="w-full flex h-full items-center justify-between px-8 max-w-7xl mx-auto">
+      {/* Desktop Header - Warm & Clean */}
+      <header className="hidden md:flex fixed top-0 left-0 z-50 w-full bg-card/80 backdrop-blur-md border-b border-border h-16 shadow-sm">
+        <div className="w-full flex h-full items-center justify-between px-6 max-w-6xl mx-auto">
           <Link
             to="/"
-            className="flex items-center gap-2 group transition-transform active:scale-[0.97]"
+            className="flex items-center gap-2.5 group transition-transform active:scale-[0.97]"
           >
-            <Clock className="size-5" strokeWidth={3} />
-            <span className="text-xl font-black tracking-tighter uppercase">
+            <div className="flex items-center justify-center size-8 rounded-lg bg-primary text-primary-foreground">
+              <Clock className="size-4" strokeWidth={2.5} />
+            </div>
+            <span className="text-xl font-bold tracking-tight font-heading">
               Timesheet
             </span>
           </Link>
 
-          <nav className="flex items-center gap-6 h-full">
+          <nav className="flex items-center gap-1 h-full">
             {links.map(({ to, label }) => {
               const isActive =
                 location.pathname === to ||
@@ -39,16 +41,13 @@ export default function Header() {
                   key={to}
                   to={to}
                   className={cn(
-                    "relative flex items-center h-full text-sm font-bold uppercase tracking-widest transition-colors active:scale-[0.97]",
+                    "relative flex items-center h-9 px-4 text-sm font-medium rounded-full transition-all active:scale-[0.97]",
                     isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                   )}
                 >
                   {label}
-                  {isActive && (
-                    <span className="absolute bottom-0 left-0 w-full h-1 bg-foreground" />
-                  )}
                 </Link>
               );
             })}
@@ -60,15 +59,17 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile Top Header - Stark */}
-      <header className="md:hidden fixed top-0 z-50 w-full bg-background border-b border-foreground/10 h-14">
-        <div className="flex h-full items-center justify-between px-4">
+      {/* Mobile Top Header - Clean */}
+      <header className="md:hidden fixed top-0 z-50 w-full bg-card/90 backdrop-blur-md border-b border-border h-14 shadow-sm">
+        <div className="flex h-full items-center justify-between px-4 max-w-xl mx-auto">
           <Link
             to="/"
-            className="flex items-center gap-2 transition-transform active:scale-[0.97]"
+            className="flex items-center gap-2.5 transition-transform active:scale-[0.97]"
           >
-            <Clock className="size-5" strokeWidth={3} />
-            <span className="text-lg font-black tracking-tighter uppercase">
+            <div className="flex items-center justify-center size-7 rounded-md bg-primary text-primary-foreground">
+              <Clock className="size-3.5" strokeWidth={2.5} />
+            </div>
+            <span className="text-lg font-bold tracking-tight font-heading">
               Timesheet
             </span>
           </Link>
@@ -76,9 +77,9 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile Bottom Navigation - Stark & Square */}
-      <div className="md:hidden fixed bottom-0 left-0 z-50 w-full bg-background border-t border-foreground/10">
-        <nav className="flex items-center justify-around h-16 px-2">
+      {/* Mobile Bottom Navigation - Pill Style */}
+      <div className="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-sm">
+        <nav className="flex items-center justify-around h-14 px-2 bg-card/90 backdrop-blur-md rounded-2xl border border-border shadow-lg shadow-black/5">
           {links.map(({ to, label, icon: Icon }) => {
             const isActive =
               location.pathname === to ||
@@ -88,19 +89,23 @@ export default function Header() {
                 key={to}
                 to={to}
                 className={cn(
-                  "relative flex flex-col items-center justify-center w-full h-full transition-transform active:scale-[0.97]",
-                  isActive ? "text-foreground" : "text-muted-foreground"
+                  "relative flex flex-col items-center justify-center w-full h-full rounded-xl transition-all active:scale-[0.97]",
+                  isActive
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 <Icon
-                  className={cn("size-5 mb-1")}
-                  strokeWidth={isActive ? 3 : 2}
+                  className={cn(
+                    "size-5 mb-0.5 transition-all",
+                    isActive ? "stroke-[2.5px]" : "stroke-[1.5px]"
+                  )}
                 />
-                <span className="text-[9px] font-black uppercase tracking-widest">
+                <span className="text-[10px] font-medium leading-none">
                   {label}
                 </span>
                 {isActive && (
-                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-foreground" />
+                  <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-1 bg-primary rounded-full" />
                 )}
               </Link>
             );

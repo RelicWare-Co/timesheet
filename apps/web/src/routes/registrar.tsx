@@ -118,7 +118,7 @@ const validateBreaks = (
   return errors;
 };
 
-const BrutalistTimePicker = ({
+const FriendlyTimePicker = ({
   value,
   onChange,
   label,
@@ -224,42 +224,42 @@ const BrutalistTimePicker = ({
     <div className="relative w-full">
       <button
         type="button"
-        className="w-full text-left border-none shadow-none text-2xl font-black h-12 bg-transparent focus-visible:ring-0 outline-none flex items-center justify-between group active:scale-[0.98] transition-transform px-2"
+        className="w-full text-left border-none shadow-none text-xl font-semibold h-11 bg-transparent focus-visible:ring-0 outline-none flex items-center justify-between group active:scale-[0.98] transition-transform px-3 rounded-lg hover:bg-secondary/50"
         onClick={() => setIsOpen(true)}
       >
         <span>{closedDisplay}</span>
-        <Clock className="size-5 opacity-20 group-hover:opacity-100 transition-opacity" />
+        <Clock className="size-4 opacity-30 group-hover:opacity-60 transition-opacity" />
       </button>
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex flex-col bg-background animate-in fade-in duration-200">
-          <div className="flex items-center justify-between p-6 border-b border-foreground/10">
-            <span className="font-black uppercase tracking-widest text-sm">
+          <div className="flex items-center justify-between p-5 border-b border-border">
+            <span className="font-semibold text-sm text-muted-foreground">
               {label || "Hora"}
             </span>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="font-black p-2 -mr-2 opacity-50 hover:opacity-100 active:scale-95 transition-all"
+              className="font-semibold p-2 -mr-2 text-muted-foreground hover:text-foreground active:scale-95 transition-all rounded-lg hover:bg-secondary"
             >
               ✕ Cerrar
             </button>
           </div>
 
-          <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 gap-8 sm:gap-12">
-            <div className="flex flex-col items-center gap-6">
-              <div className="text-7xl sm:text-8xl font-black tracking-tighter tabular-nums flex items-end">
+          <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 gap-8 sm:gap-10">
+            <div className="flex flex-col items-center gap-5">
+              <div className="text-6xl sm:text-7xl font-bold tracking-tighter tabular-nums flex items-end font-heading">
                 {displayTime}
               </div>
-              <div className="flex bg-secondary/20 p-1 w-fit">
+              <div className="flex bg-secondary rounded-xl p-1 w-fit">
                 <button
                   type="button"
                   onClick={() => setPeriod("AM")}
                   className={cn(
-                    "px-8 py-4 text-2xl font-black transition-colors uppercase",
+                    "px-8 py-3 text-xl font-semibold transition-colors uppercase rounded-lg",
                     period === "AM"
-                      ? "bg-foreground text-background"
-                      : "hover:bg-foreground/10"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "hover:bg-card/50 text-muted-foreground"
                   )}
                 >
                   AM
@@ -268,10 +268,10 @@ const BrutalistTimePicker = ({
                   type="button"
                   onClick={() => setPeriod("PM")}
                   className={cn(
-                    "px-8 py-4 text-2xl font-black transition-colors uppercase",
+                    "px-8 py-3 text-xl font-semibold transition-colors uppercase rounded-lg",
                     period === "PM"
-                      ? "bg-foreground text-background"
-                      : "hover:bg-foreground/10"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "hover:bg-card/50 text-muted-foreground"
                   )}
                 >
                   PM
@@ -279,13 +279,13 @@ const BrutalistTimePicker = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 w-full max-w-[340px]">
+            <div className="grid grid-cols-3 gap-2.5 w-full max-w-[320px]">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                 <button
                   type="button"
                   key={num}
                   onClick={() => handleDigit(num.toString())}
-                  className="bg-secondary/20 h-16 sm:h-20 text-4xl font-black hover:bg-foreground/10 active:bg-foreground active:text-background transition-colors"
+                  className="bg-card border border-border h-14 sm:h-16 text-3xl font-semibold hover:bg-secondary active:bg-primary active:text-primary-foreground transition-colors rounded-xl shadow-sm"
                 >
                   {num}
                 </button>
@@ -293,21 +293,21 @@ const BrutalistTimePicker = ({
               <button
                 type="button"
                 onClick={handleBackspace}
-                className="bg-secondary/20 h-16 sm:h-20 text-2xl font-black hover:bg-foreground/10 active:bg-foreground active:text-background transition-colors flex items-center justify-center text-destructive"
+                className="bg-card border border-border h-14 sm:h-16 text-lg font-semibold hover:bg-secondary active:bg-primary active:text-primary-foreground transition-colors rounded-xl shadow-sm flex items-center justify-center text-destructive"
               >
                 DEL
               </button>
               <button
                 type="button"
                 onClick={() => handleDigit("0")}
-                className="bg-secondary/20 h-16 sm:h-20 text-4xl font-black hover:bg-foreground/10 active:bg-foreground active:text-background transition-colors"
+                className="bg-card border border-border h-14 sm:h-16 text-3xl font-semibold hover:bg-secondary active:bg-primary active:text-primary-foreground transition-colors rounded-xl shadow-sm"
               >
                 0
               </button>
               <button
                 type="button"
                 onClick={handleConfirm}
-                className="bg-foreground text-background h-16 sm:h-20 text-2xl font-black hover:bg-foreground/90 active:scale-95 transition-all flex items-center justify-center"
+                className="bg-primary text-primary-foreground h-14 sm:h-16 text-xl font-semibold hover:bg-primary/90 active:scale-95 transition-all rounded-xl shadow-sm flex items-center justify-center"
               >
                 OK
               </button>
@@ -630,23 +630,28 @@ export default function RegistrarPage() {
   if (!settings) {
     return (
       <div className="container mx-auto px-4 py-16 text-center max-w-xl">
-        <h2 className="font-heading text-4xl font-black uppercase mb-4 tracking-tighter">
-          Perfil no configurado
-        </h2>
-        <p className="text-base text-muted-foreground mb-8 leading-relaxed">
-          Para calcular horas extra, recargos nocturnos y estimaciones de
-          salario según la ley colombiana, necesitamos conocer tu jornada
-          semanal y condiciones de pago. Tu información se guarda solo en este
-          dispositivo.
-        </p>
-        <Link to="/configuracion/inicial">
-          <Button
-            size="lg"
-            className="h-16 w-full text-xl font-bold uppercase tracking-widest"
-          >
-            Configurar mi perfil
-          </Button>
-        </Link>
+        <div className="bg-card rounded-2xl border border-border p-8 md:p-12">
+          <div className="flex items-center justify-center size-16 rounded-2xl bg-primary/10 text-primary mx-auto mb-6">
+            <Clock className="size-8" strokeWidth={2} />
+          </div>
+          <h2 className="font-heading text-3xl font-bold mb-3 tracking-tight">
+            Perfil no configurado
+          </h2>
+          <p className="text-base text-muted-foreground mb-8 leading-relaxed">
+            Para calcular horas extra, recargos nocturnos y estimaciones de
+            salario según la ley colombiana, necesitamos conocer tu jornada
+            semanal y condiciones de pago. Tu información se guarda solo en este
+            dispositivo.
+          </p>
+          <Link to="/configuracion/inicial">
+            <Button
+              size="lg"
+              className="h-14 w-full text-lg font-semibold rounded-xl"
+            >
+              Configurar mi perfil
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
@@ -655,42 +660,40 @@ export default function RegistrarPage() {
     <div className="container mx-auto max-w-4xl px-4 py-8 md:py-16">
       <Link
         to="/"
-        className="inline-flex items-center text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors mb-12 group"
+        className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-8 group"
       >
         <ArrowLeft className="mr-2 size-4 group-hover:-translate-x-1 transition-transform" />
         Volver
       </Link>
 
-      <div className="mb-16">
-        <h1 className="text-5xl sm:text-7xl font-black tracking-tighter uppercase leading-[0.85] mb-4">
-          Registro.
+      <div className="mb-10">
+        <h1 className="font-heading text-4xl sm:text-5xl font-bold tracking-tight mb-2">
+          Registro
         </h1>
-        <p className="text-xl font-bold uppercase tracking-widest text-muted-foreground">
+        <p className="text-lg font-medium text-muted-foreground capitalize">
           {dayName}
         </p>
       </div>
 
-      <div className="grid gap-16 md:grid-cols-12">
+      <div className="grid gap-8 md:grid-cols-12">
         {/* Left Col - Context */}
-        <div className="md:col-span-5 flex flex-col gap-12">
-          {/* Calendar & Copy */}
-          <div>
-            <h3 className="text-sm font-black uppercase tracking-widest border-b border-foreground/10 pb-2 mb-6">
+        <div className="md:col-span-5 flex flex-col gap-8">
+          {/* Calendar */}
+          <div className="bg-card rounded-2xl border border-border p-5">
+            <h3 className="text-sm font-semibold text-muted-foreground mb-4">
               Fecha
             </h3>
-            <div className="flex justify-center border border-foreground/10 p-2">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={handleDateSelect}
-                className="w-full"
-              />
-            </div>
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={handleDateSelect}
+              className="w-full"
+            />
           </div>
 
           {/* Day Type */}
-          <div>
-            <h3 className="text-sm font-black uppercase tracking-widest border-b border-foreground/10 pb-2 mb-6">
+          <div className="bg-card rounded-2xl border border-border p-5">
+            <h3 className="text-sm font-semibold text-muted-foreground mb-4">
               Tipo de Día
             </h3>
             <div className="flex flex-col gap-2">
@@ -700,10 +703,10 @@ export default function RegistrarPage() {
                   key={type}
                   onClick={() => setDayType(type)}
                   className={cn(
-                    "text-left p-4 border transition-colors active:scale-[0.98] uppercase font-bold text-sm tracking-widest",
+                    "text-left px-4 py-3 rounded-xl border transition-all active:scale-[0.98] font-medium text-sm",
                     dayType === type
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-foreground/10 text-muted-foreground hover:border-foreground/40"
+                      ? "border-primary bg-primary/5 text-primary shadow-sm"
+                      : "border-border text-muted-foreground hover:border-primary/30 hover:bg-secondary/50"
                   )}
                 >
                   {getDayTypeLabel(type)}
@@ -714,22 +717,22 @@ export default function RegistrarPage() {
         </div>
 
         {/* Right Col - Times */}
-        <div className="md:col-span-7 flex flex-col gap-12">
+        <div className="md:col-span-7 flex flex-col gap-8">
           {/* Work Segments */}
-          <div>
-            <div className="flex items-center justify-between border-b border-foreground/10 pb-2 mb-6">
-              <h3 className="text-sm font-black uppercase tracking-widest">
+          <div className="bg-card rounded-2xl border border-border p-5 md:p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-sm font-semibold text-muted-foreground">
                 Jornada
               </h3>
               <button
                 type="button"
                 onClick={addSegment}
-                className="text-xs font-bold uppercase tracking-widest hover:underline"
+                className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
               >
-                + Añadir
+                + Añadir segmento
               </button>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {segments.map((segment) => {
                 const segErrors = errors.filter(
                   (e) => e.segmentId === segment.id
@@ -739,35 +742,37 @@ export default function RegistrarPage() {
                     <div className="flex flex-col sm:flex-row items-center gap-2">
                       <div
                         className={cn(
-                          "flex-1 w-full border p-2 flex items-center bg-background",
+                          "flex-1 w-full rounded-xl border p-2 flex items-center bg-background",
                           segErrors.length > 0
                             ? "border-destructive"
-                            : "border-foreground/10"
+                            : "border-border"
                         )}
                       >
-                        <span className="text-[10px] font-bold uppercase tracking-widest px-2 opacity-50">
-                          IN
+                        <span className="text-[10px] font-semibold text-muted-foreground px-2 uppercase tracking-wide">
+                          Entrada
                         </span>
-                        <BrutalistTimePicker
+                        <FriendlyTimePicker
                           value={segment.startTime}
                           onChange={(val) =>
                             updateSegment(segment.id, "startTime", val)
                           }
                         />
                       </div>
-                      <span className="hidden sm:block opacity-30">-</span>
+                      <span className="hidden sm:block text-muted-foreground">
+                        →
+                      </span>
                       <div
                         className={cn(
-                          "flex-1 w-full border p-2 flex items-center bg-background",
+                          "flex-1 w-full rounded-xl border p-2 flex items-center bg-background",
                           segErrors.length > 0
                             ? "border-destructive"
-                            : "border-foreground/10"
+                            : "border-border"
                         )}
                       >
-                        <span className="text-[10px] font-bold uppercase tracking-widest px-2 opacity-50">
-                          OUT
+                        <span className="text-[10px] font-semibold text-muted-foreground px-2 uppercase tracking-wide">
+                          Salida
                         </span>
-                        <BrutalistTimePicker
+                        <FriendlyTimePicker
                           value={segment.endTime}
                           onChange={(val) =>
                             updateSegment(segment.id, "endTime", val)
@@ -779,14 +784,14 @@ export default function RegistrarPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => removeSegment(segment.id)}
-                          className="rounded-none shrink-0 border border-transparent hover:border-destructive hover:text-destructive hover:bg-transparent"
+                          className="shrink-0 rounded-xl hover:bg-destructive/10 hover:text-destructive"
                         >
-                          <Trash2 className="size-5" />
+                          <Trash2 className="size-4" />
                         </Button>
                       )}
                     </div>
                     {segErrors[0] && (
-                      <p className="text-xs font-bold text-destructive">
+                      <p className="text-xs font-medium text-destructive pl-1">
                         {segErrors[0].message}
                       </p>
                     )}
@@ -797,30 +802,30 @@ export default function RegistrarPage() {
           </div>
 
           {/* Break Segments */}
-          <div>
-            <div className="flex items-center justify-between border-b border-foreground/10 pb-2 mb-6">
-              <h3 className="text-sm font-black uppercase tracking-widest">
+          <div className="bg-card rounded-2xl border border-border p-5 md:p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-sm font-semibold text-muted-foreground">
                 Descansos
               </h3>
               <button
                 type="button"
                 onClick={addBreak}
-                className="text-xs font-bold uppercase tracking-widest hover:underline"
+                className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
               >
-                + Añadir
+                + Añadir descanso
               </button>
             </div>
             {breaks.length === 0 ? (
-              <div className="border border-foreground/10 border-dashed p-8 text-center">
-                <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-2">
+              <div className="border border-dashed border-border rounded-xl p-8 text-center bg-secondary/30">
+                <p className="text-sm font-medium text-muted-foreground mb-1">
                   Sin descansos registrados
                 </p>
-                <p className="text-xs text-muted-foreground/60">
+                <p className="text-xs text-muted-foreground/70">
                   Añade descansos si tu jornada incluye pausas.
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {breaks.map((breakSegment) => {
                   const breakErrors = errors.filter(
                     (e) => e.breakId === breakSegment.id
@@ -830,35 +835,37 @@ export default function RegistrarPage() {
                       <div className="flex flex-col sm:flex-row items-center gap-2">
                         <div
                           className={cn(
-                            "flex-1 w-full border p-2 flex items-center bg-secondary/20",
+                            "flex-1 w-full rounded-xl border p-2 flex items-center bg-secondary/30",
                             breakErrors.length > 0
                               ? "border-destructive"
-                              : "border-foreground/10"
+                              : "border-border"
                           )}
                         >
-                          <span className="text-[10px] font-bold uppercase tracking-widest px-2 opacity-50">
-                            IN
+                          <span className="text-[10px] font-semibold text-muted-foreground px-2 uppercase tracking-wide">
+                            Inicio
                           </span>
-                          <BrutalistTimePicker
+                          <FriendlyTimePicker
                             value={breakSegment.startTime}
                             onChange={(val) =>
                               updateBreak(breakSegment.id, "startTime", val)
                             }
                           />
                         </div>
-                        <span className="hidden sm:block opacity-30">-</span>
+                        <span className="hidden sm:block text-muted-foreground">
+                          →
+                        </span>
                         <div
                           className={cn(
-                            "flex-1 w-full border p-2 flex items-center bg-secondary/20",
+                            "flex-1 w-full rounded-xl border p-2 flex items-center bg-secondary/30",
                             breakErrors.length > 0
                               ? "border-destructive"
-                              : "border-foreground/10"
+                              : "border-border"
                           )}
                         >
-                          <span className="text-[10px] font-bold uppercase tracking-widest px-2 opacity-50">
-                            OUT
+                          <span className="text-[10px] font-semibold text-muted-foreground px-2 uppercase tracking-wide">
+                            Fin
                           </span>
-                          <BrutalistTimePicker
+                          <FriendlyTimePicker
                             value={breakSegment.endTime}
                             onChange={(val) =>
                               updateBreak(breakSegment.id, "endTime", val)
@@ -869,13 +876,13 @@ export default function RegistrarPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => removeBreak(breakSegment.id)}
-                          className="rounded-none shrink-0 hover:text-destructive hover:bg-transparent"
+                          className="shrink-0 rounded-xl hover:bg-destructive/10 hover:text-destructive"
                         >
-                          <Trash2 className="size-5" />
+                          <Trash2 className="size-4" />
                         </Button>
                       </div>
                       {breakErrors[0] && (
-                        <p className="text-xs font-bold text-destructive">
+                        <p className="text-xs font-medium text-destructive pl-1">
                           {breakErrors[0].message}
                         </p>
                       )}
@@ -887,45 +894,45 @@ export default function RegistrarPage() {
           </div>
 
           {/* Notes */}
-          <div>
-            <h3 className="text-sm font-black uppercase tracking-widest border-b border-foreground/10 pb-2 mb-6">
+          <div className="bg-card rounded-2xl border border-border p-5 md:p-6">
+            <h3 className="text-sm font-semibold text-muted-foreground mb-4">
               Notas
             </h3>
             <Textarea
               placeholder="Observaciones sobre la jornada: tareas especiales, retrasos justificados, etc."
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="min-h-[80px] text-base font-medium border-foreground/10 rounded-none shadow-none focus-visible:ring-1 focus-visible:ring-foreground bg-transparent placeholder:text-muted-foreground/50"
+              className="min-h-[80px] text-base font-medium border-border rounded-xl shadow-none focus-visible:ring-2 focus-visible:ring-primary/30 bg-transparent placeholder:text-muted-foreground/50"
             />
           </div>
 
           {/* Actions & Preview */}
-          <div className="pt-8 flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
             {calcPreview && (
-              <div className="flex items-center justify-between font-black uppercase tracking-widest p-4 border border-foreground/10 bg-foreground text-background">
+              <div className="flex items-center justify-between font-semibold p-5 rounded-xl bg-primary text-primary-foreground shadow-sm">
                 <span>Total Horas</span>
-                <span className="text-2xl">
+                <span className="text-2xl font-bold tabular-nums">
                   {formatMinutesAsHours(calcPreview.workedMinutes)}
                 </span>
               </div>
             )}
 
             {errors.length > 0 && (
-              <div className="p-4 border border-destructive bg-destructive/5 text-destructive text-sm font-bold">
-                Corrige {errors.length} error{errors.length > 1 ? "es" : ""}{" "}
-                antes de guardar.
+              <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium">
+                Corrige {errors.length} error
+                {errors.length > 1 ? "es" : ""} antes de guardar.
               </div>
             )}
 
             <Button
               onClick={handleSave}
               disabled={isSaving || errors.length > 0}
-              className="h-16 w-full text-lg font-black uppercase tracking-widest rounded-none shadow-none transition-transform active:scale-[0.98] border border-foreground bg-foreground hover:bg-foreground/90 text-background disabled:opacity-40"
+              className="h-14 w-full text-lg font-semibold rounded-xl shadow-sm transition-transform active:scale-[0.98]"
             >
-              <Save className="mr-3 size-6" />
+              <Save className="mr-2 size-5" />
               {getSaveButtonLabel()}
             </Button>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40 text-center">
+            <p className="text-xs font-medium text-muted-foreground/60 text-center">
               Atajo: Ctrl + S
             </p>
           </div>
